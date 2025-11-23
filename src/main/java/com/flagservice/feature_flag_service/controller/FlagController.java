@@ -1,11 +1,13 @@
 package com.flagservice.feature_flag_service.controller;
 
+import com.flagservice.feature_flag_service.exception.FlagNotFoundException;
+import com.flagservice.feature_flag_service.exception.FlagValidationException;
 import com.flagservice.feature_flag_service.model.Flag;
+import com.flagservice.feature_flag_service.service.FlagService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -13,93 +15,89 @@ import java.util.Optional;
 @RequestMapping("/api/flags")
 public class FlagController {
 
-    private List<Flag> flags = new ArrayList<>();
-    private Long nextId = 1L;
+    private FlagService flagService;
 
-    public FlagController()
+    public FlagController(FlagService flagService)
     {
-        flags.add(new Flag(nextId++, "dark_mode", "Enable Dark Mode", false, 0));
-        flags.add(new Flag(nextId++, "new_checkout", "New checkout flow", true, 25));
-        flags.add(new Flag(nextId++, "ai_recommendations", "AI-powered product recommendations", true, 50));
+        this.flagService = flagService;
     }
 
-    //Get all flags
     @GetMapping
     public ResponseEntity<List<Flag>> getAllFlags()
     {
+        List<Flag> flags = flagService.getAllFlags();
         return ResponseEntity.ok(flags);
     }
 
-    //Get flag by id
     @GetMapping("/{id}")
-    public ResponseEntity<Flag> getFlagById(@PathVariable Long id)
-    {
-        Optional<Flag> flag = flags.stream()
-                .filter(f -> f.getId().equals(id))
-                .findFirst();
-
-        if(flag.isPresent())
-        {
-            return ResponseEntity.ok(flag.get());
-        }
-        else
-        {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    //Create a new flag
-    @PostMapping
-    public ResponseEntity<Flag> createFlag(@RequestBody Flag flag)
-    {
-        flag.setId(nextId++);
-        flags.add(flag);
-        return ResponseEntity.status(HttpStatus.CREATED).body(flag);
-    }
-
-    //Update a flag
-    @PutMapping("/{id}")
-    public ResponseEntity<Flag> updateFlag(@PathVariable Long id, @RequestBody Flag updatedFlag)
-    {
-        Optional<Flag> existingFlag = flags.stream()
-                .filter(f -> f.getId().equals(id))
-                .findFirst();
-
-        if (existingFlag.isPresent()) {
-            Flag flag = existingFlag.get();
-            flag.setName(updatedFlag.getName());
-            flag.setDescription(updatedFlag.getDescription());
-            flag.setEnabled(updatedFlag.isEnabled());
-            flag.setRolloutPercentage(updatedFlag.getRolloutPercentage());
+    public ResponseEntity<?> getFlagById(@PathVariable Long id) {
+        try {
+            Flag flag = flagService.getFlagById(id)
+                    .orElseThrow(() -> new FlagNotFoundException(id));
             return ResponseEntity.ok(flag);
-        } else {
-            return ResponseEntity.notFound().build();
+        } catch (FlagNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 
-    //Delete a flag
+    //create a Flag
+    @PostMapping
+    public ResponseEntity<?> createFlag(@RequestBody Flag flag) {
+        try {
+            Flag created = flagService.createFlag(flag);
+            return ResponseEntity.status(HttpStatus.CREATED).body(created);
+        } catch (FlagValidationException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    //Update an existing flag
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateFlag(@PathVariable Long id, @RequestBody Flag flag) {
+        try {
+            Flag updated = flagService.updateFlag(id, flag);
+            return ResponseEntity.ok(updated);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    //Delete a Flag
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteFlag(@PathVariable Long id) {
-        boolean removed = flags.removeIf(f -> f.getId().equals(id));
-
-        if (removed) {
+    public ResponseEntity<?> deleteFlag(@PathVariable Long id) {
+        try {
+            flagService.deleteFlag(id);
             return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.notFound().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
-    //Search flag by name
+    //Search Flag by Name
     @GetMapping("/search")
-    public ResponseEntity<List<Flag>> searchFlags(@RequestParam String name) {
-        List<Flag> results = flags.stream()
-                .filter(f -> f.getName().toLowerCase().contains(name.toLowerCase()))
-                .toList();
+    public ResponseEntity<List<Flag>> searchFlags(@RequestParam(required = false) String name) {
+        List<Flag> results = flagService.searchFlagsByName(name);
         return ResponseEntity.ok(results);
     }
 
+    //Get enabled Flags
+    @GetMapping("/enabled")
+    public ResponseEntity<List<Flag>> getEnabledFlags() {
+        List<Flag> enabled = flagService.getEnabledFlags();
+        return ResponseEntity.ok(enabled);
+    }
+
+    //Toggle Flag On or Off
+    @PostMapping("/{id}/toggle")
+    public ResponseEntity<?> toggleFlag(@PathVariable Long id) {
+        try {
+            Flag toggled = flagService.toggleFlag(id);
+            return ResponseEntity.ok(toggled);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 
 
-    
 
 }
