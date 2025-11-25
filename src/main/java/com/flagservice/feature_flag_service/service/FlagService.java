@@ -3,64 +3,72 @@ package com.flagservice.feature_flag_service.service;
 import com.flagservice.feature_flag_service.exception.FlagNotFoundException;
 import com.flagservice.feature_flag_service.exception.FlagValidationException;
 import com.flagservice.feature_flag_service.model.Flag;
+import com.flagservice.feature_flag_service.repository.FlagRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional
 public class FlagService {
 
-    public List<Flag> flags = new ArrayList<>();
-    private Long nextId = 1L;
+    private final FlagRepository flagRepository;
 
-    public FlagService() {
-        flags.add(new Flag(nextId++, "dark_mode", "Enable dark mode UI", false, 0));
-        flags.add(new Flag(nextId++, "new_checkout", "New checkout flow", true, 25));
-        flags.add(new Flag(nextId++, "ai_recommendations", "AI-powered product recommendations", true, 50));
+    // Constructor injection
+    public FlagService(FlagRepository flagRepository) {
+        this.flagRepository = flagRepository;
+        initializeSampleData();
     }
 
-    //Get all Flags
-    public List<Flag> getAllFlags()
-    {
-        return new ArrayList<>(flags);
+    /**
+     * Initialize with sample data if database is empty
+     */
+    private void initializeSampleData() {
+        if (flagRepository.count() == 0) {
+            flagRepository.save(new Flag(null, "dark_mode", "Enable dark mode UI", false, 0));
+            flagRepository.save(new Flag(null, "new_checkout", "New checkout flow", true, 25));
+            flagRepository.save(new Flag(null, "ai_recommendations", "AI-powered product recommendations", true, 50));
+        }
     }
 
-    //Get Flag by Id
-    public Optional<Flag> getFlagById(Long id)
-    {
-        return flags.stream()
-                .filter(f -> f.getId().equals(id))
-                .findFirst();
+    /**
+     * Get all flags
+     */
+    public List<Flag> getAllFlags() {
+        return flagRepository.findAll();
     }
 
-    //Create a new Flag
-    public Flag createFlag(Flag flag)
-    {
-        //validation
+    /**
+     * Get flag by ID
+     */
+    public Optional<Flag> getFlagById(Long id) {
+        return flagRepository.findById(id);
+    }
+
+    /**
+     * Create a new flag with validation
+     */
+    public Flag createFlag(Flag flag) {
+        // Validation
         validateFlagName(flag.getName());
         validateRolloutPercentage(flag.getRolloutPercentage());
 
         // Check for duplicate names
-        if (flagExistsByName(flag.getName())) {
+        if (flagRepository.existsByNameIgnoreCase(flag.getName())) {
             throw new FlagValidationException("Flag with name '" + flag.getName() + "' already exists");
         }
 
-        // Set ID and timestamps
-        flag.setId(nextId++);
-        flag.setCreatedAt(LocalDateTime.now());
-        flag.setUpdatedAt(LocalDateTime.now());
-
-        flags.add(flag);
-        return flag;
+        // Save to database
+        return flagRepository.save(flag);
     }
 
-    //Update an existing flag
-    public Flag updateFlag(Long id, Flag updatedFlag)
-    {
-        Flag existingFlag = getFlagById(id)
+    /**
+     * Update an existing flag
+     */
+    public Flag updateFlag(Long id, Flag updatedFlag) {
+        Flag existingFlag = flagRepository.findById(id)
                 .orElseThrow(() -> new FlagNotFoundException(id));
 
         // Validation
@@ -68,8 +76,10 @@ public class FlagService {
         validateRolloutPercentage(updatedFlag.getRolloutPercentage());
 
         // Check if new name conflicts with another flag
-        if (!existingFlag.getName().equals(updatedFlag.getName()) && flagExistsByName(updatedFlag.getName())) {
-            throw new FlagValidationException("Flag with name '" + updatedFlag.getName() + "' already exists");
+        if (!existingFlag.getName().equalsIgnoreCase(updatedFlag.getName())) {
+            if (flagRepository.existsByNameIgnoreCase(updatedFlag.getName())) {
+                throw new FlagValidationException("Flag with name '" + updatedFlag.getName() + "' already exists");
+            }
         }
 
         // Update fields
@@ -77,46 +87,48 @@ public class FlagService {
         existingFlag.setDescription(updatedFlag.getDescription());
         existingFlag.setEnabled(updatedFlag.isEnabled());
         existingFlag.setRolloutPercentage(updatedFlag.getRolloutPercentage());
-        existingFlag.setUpdatedAt(LocalDateTime.now());
 
-        return existingFlag;
+        // Save to database (JPA will update automatically due to @Transactional)
+        return flagRepository.save(existingFlag);
     }
 
-    //Delete a Flag
+    /**
+     * Delete a flag
+     */
     public void deleteFlag(Long id) {
-        boolean removed = flags.removeIf(f -> f.getId().equals(id));
-        if (!removed) {
+        if (!flagRepository.existsById(id)) {
             throw new FlagNotFoundException(id);
         }
+        flagRepository.deleteById(id);
     }
 
-    //Search Flag by name
+    /**
+     * Search flags by name (case-insensitive)
+     */
     public List<Flag> searchFlagsByName(String name) {
         if (name == null || name.trim().isEmpty()) {
-            return getAllFlags();
+            return flagRepository.findAll();
         }
-
-        return flags.stream()
-                .filter(f -> f.getName().toLowerCase().contains(name.toLowerCase()))
-                .toList();
+        return flagRepository.findByNameContainingIgnoreCase(name);
     }
 
-    //Get only enabled Flags
+    /**
+     * Get only enabled flags
+     */
     public List<Flag> getEnabledFlags() {
-        return flags.stream()
-                .filter(Flag::isEnabled)
-                .toList();
+        return flagRepository.findByEnabledTrue();
     }
 
-    //Toggle flag ON or OFF
+    /**
+     * Toggle flag on/off
+     */
     public Flag toggleFlag(Long id) {
-        Flag flag = getFlagById(id)
+        Flag flag = flagRepository.findById(id)
                 .orElseThrow(() -> new FlagNotFoundException(id));
 
         flag.setEnabled(!flag.isEnabled());
-        flag.setUpdatedAt(LocalDateTime.now());
 
-        return flag;
+        return flagRepository.save(flag);
     }
 
     // ========== VALIDATION METHODS ==========
@@ -134,7 +146,6 @@ public class FlagService {
             throw new FlagValidationException("Flag name cannot exceed 50 characters");
         }
 
-        // Only allow alphanumeric, underscores, and hyphens
         if (!name.matches("^[a-zA-Z0-9_-]+$")) {
             throw new FlagValidationException("Flag name can only contain letters, numbers, underscores, and hyphens");
         }
@@ -144,10 +155,5 @@ public class FlagService {
         if (percentage < 0 || percentage > 100) {
             throw new FlagValidationException("Rollout percentage must be between 0 and 100");
         }
-    }
-
-    private boolean flagExistsByName(String name) {
-        return flags.stream()
-                .anyMatch(f -> f.getName().equalsIgnoreCase(name));
     }
 }

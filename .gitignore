@@ -1,3 +1,20 @@
 "target/" 
 ".idea/" 
 "*.iml" 
+
+# Ignore local configuration with sensitive data
+application-local.properties
+**/application-local.properties
+
+# Ignore environment variable files
+.env
+.env.local
+
+# Ignore IDE-specific files (if not already there)
+.idea/
+*.iml
+.vscode/
+
+# Ignore OS files
+.DS_Store
+Thumbs.db

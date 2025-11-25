@@ -1,18 +1,35 @@
 package com.flagservice.feature_flag_service.model;
 
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+@Entity
+@Table(name = "flags")
 public class Flag {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false, unique = true, length = 50)
     private String name;
+
+    @Column(length = 500)
     private String description;
+
+    @Column(nullable = false)
     private boolean enabled;
+
+    @Column(name = "rollout_percentage", nullable = false)
     private int rolloutPercentage;
+
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
-    // Constructor (empty - for creating new flags)
+    // Default constructor (REQUIRED by JPA)
     public Flag() {
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
@@ -20,7 +37,7 @@ public class Flag {
         this.enabled = false;
     }
 
-    // Constructor (with parameters - for convenience)
+    // Constructor with parameters
     public Flag(Long id, String name, String description, boolean enabled, int rolloutPercentage) {
         this.id = id;
         this.name = name;
@@ -31,6 +48,20 @@ public class Flag {
         this.updatedAt = LocalDateTime.now();
     }
 
+    // Automatically set timestamps before save
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+    }
+
+    // Automatically update timestamp before update
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
+
+    // Getters and Setters (keep all existing ones)
 
     public Long getId() {
         return id;
@@ -62,7 +93,6 @@ public class Flag {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
-        this.updatedAt = LocalDateTime.now();
     }
 
     public int getRolloutPercentage() {
@@ -71,7 +101,6 @@ public class Flag {
 
     public void setRolloutPercentage(int rolloutPercentage) {
         this.rolloutPercentage = rolloutPercentage;
-        this.updatedAt = LocalDateTime.now();
     }
 
     public LocalDateTime getCreatedAt() {
