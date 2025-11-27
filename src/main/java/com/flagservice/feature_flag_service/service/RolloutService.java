@@ -1,0 +1,221 @@
+package com.flagservice.feature_flag_service.service;
+
+import com.flagservice.feature_flag_service.dto.FlagEvaluationResponse;
+import com.flagservice.feature_flag_service.exception.FlagNotFoundException;
+import com.flagservice.feature_flag_service.model.Flag;
+import com.flagservice.feature_flag_service.repository.FlagRepository;
+import org.springframework.stereotype.Service;
+
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+import java.util.List;
+
+@Service
+public class RolloutService {
+
+    private final FlagRepository flagRepository;
+
+    public RolloutService(FlagRepository flagRepository) {
+        this.flagRepository = flagRepository;
+    }
+
+    /**
+     * Evaluate if a user should get a feature flag
+     */
+    public FlagEvaluationResponse evaluateFlag(String flagName, String userId) {
+        // Find the flag
+        Flag flag = flagRepository.findByNameIgnoreCase(flagName)
+                .orElseThrow(() -> new FlagNotFoundException("Flag '" + flagName + "' not found"));
+
+        // If flag is disabled globally, nobody gets it
+        if (!flag.isEnabled()) {
+            return new FlagEvaluationResponse(
+                    flagName,
+                    false,
+                    userId,
+                    "Flag is disabled globally"
+            );
+        }
+
+        // Check if user is specifically targeted
+        if (isUserTargeted(flag, userId)) {
+            return new FlagEvaluationResponse(
+                    flagName,
+                    true,
+                    userId,
+                    "User is specifically targeted"
+            );
+        }
+
+        // Check percentage rollout
+        if (isUserInRolloutPercentage(flag, userId)) {
+            return new FlagEvaluationResponse(
+                    flagName,
+                    true,
+                    userId,
+                    "User is in rollout percentage (" + flag.getRolloutPercentage() + "%)"
+            );
+        }
+
+        // User doesn't get the feature
+        return new FlagEvaluationResponse(
+                flagName,
+                false,
+                userId,
+                "User not in rollout percentage"
+        );
+    }
+
+    /**
+     * Evaluate multiple flags for a user at once
+     */
+    public List<FlagEvaluationResponse> evaluateAllFlags(String userId) {
+        List<Flag> allFlags = flagRepository.findAll();
+
+        return allFlags.stream()
+                .map(flag -> evaluateFlag(flag.getName(), userId))
+                .toList();
+    }
+
+    /**
+     * Check if user is specifically targeted for this flag
+     */
+    private boolean isUserTargeted(Flag flag, String userId) {
+        String targetUserIds = flag.getTargetUserIds();
+
+        if (targetUserIds == null || targetUserIds.trim().isEmpty()) {
+            return false;
+        }
+
+        // Split by comma and check if userId is in the list
+        List<String> targetedUsers = Arrays.asList(targetUserIds.split(","));
+        return targetedUsers.stream()
+                .map(String::trim)
+                .anyMatch(id -> id.equalsIgnoreCase(userId));
+    }
+
+    /**
+     * Check if user falls within the rollout percentage
+     * Uses consistent hashing so same user always gets same result
+     */
+    private boolean isUserInRolloutPercentage(Flag flag, String userId) {
+        int rolloutPercentage = flag.getRolloutPercentage();
+
+        // 0% rollout = nobody gets it
+        if (rolloutPercentage <= 0) {
+            return false;
+        }
+
+        // 100% rollout = everyone gets it
+        if (rolloutPercentage >= 100) {
+            return true;
+        }
+
+        // Calculate hash bucket (0-99) for this user + flag combination
+        int bucket = getUserBucket(flag.getName(), userId);
+
+        // User gets feature if their bucket is less than rollout percentage
+        return bucket < rolloutPercentage;
+    }
+
+    /**
+     * Calculate which bucket (0-99) a user falls into for a specific flag
+     * This ensures:
+     * - Same user always gets same bucket for same flag (consistent)
+     * - Different flags give different buckets (independent rollouts)
+     * - Users are distributed evenly across buckets
+     */
+    private int getUserBucket(String flagName, String userId) {
+        try {
+            // Create a unique key combining flag name and user ID
+            String key = flagName + ":" + userId;
+
+            // Use SHA-256 to hash the key
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hashBytes = digest.digest(key.getBytes(StandardCharsets.UTF_8));
+
+            // Take first 4 bytes and convert to integer
+            int hash = Math.abs(
+                    ((hashBytes[0] & 0xFF) << 24) |
+                            ((hashBytes[1] & 0xFF) << 16) |
+                            ((hashBytes[2] & 0xFF) << 8) |
+                            (hashBytes[3] & 0xFF)
+            );
+
+            // Return bucket 0-99
+            return hash % 100;
+
+        } catch (NoSuchAlgorithmException e) {
+            // Fallback to simple hash (should never happen)
+            return Math.abs((flagName + userId).hashCode()) % 100;
+        }
+    }
+
+    /**
+     * Get statistics about how many users would get this flag
+     * Simulates with sample user IDs
+     */
+    public RolloutStatistics getStatistics(String flagName, int sampleSize) {
+        Flag flag = flagRepository.findByNameIgnoreCase(flagName)
+                .orElseThrow(() -> new FlagNotFoundException("Flag '" + flagName + "' not found"));
+
+        if (!flag.isEnabled()) {
+            return new RolloutStatistics(flagName, 0, sampleSize, 0.0);
+        }
+
+        // Simulate with sample user IDs
+        int usersWhoGetFeature = 0;
+        for (int i = 0; i < sampleSize; i++) {
+            String testUserId = "user-" + i;
+            FlagEvaluationResponse result = evaluateFlag(flagName, testUserId);
+            if (result.isEnabled()) {
+                usersWhoGetFeature++;
+            }
+        }
+
+        double actualPercentage = (usersWhoGetFeature * 100.0) / sampleSize;
+
+        return new RolloutStatistics(flagName, usersWhoGetFeature, sampleSize, actualPercentage);
+    }
+
+    /**
+     * Inner class for rollout statistics
+     */
+    public static class RolloutStatistics {
+        private final String flagName;
+        private final int usersEnabled;
+        private final int totalUsers;
+        private final double actualPercentage;
+
+        public RolloutStatistics(String flagName, int usersEnabled, int totalUsers, double actualPercentage) {
+            this.flagName = flagName;
+            this.usersEnabled = usersEnabled;
+            this.totalUsers = totalUsers;
+            this.actualPercentage = actualPercentage;
+        }
+
+        public String getFlagName() {
+            return flagName;
+        }
+
+        public int getUsersEnabled() {
+            return usersEnabled;
+        }
+
+        public int getTotalUsers() {
+            return totalUsers;
+        }
+
+        public double getActualPercentage() {
+            return actualPercentage;
+        }
+
+        @Override
+        public String toString() {
+            return String.format("RolloutStatistics{flagName='%s', usersEnabled=%d, totalUsers=%d, actualPercentage=%.2f%%}",
+                    flagName, usersEnabled, totalUsers, actualPercentage);
+        }
+    }
+}

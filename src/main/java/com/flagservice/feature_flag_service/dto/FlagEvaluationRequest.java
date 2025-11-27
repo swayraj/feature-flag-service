@@ -2,23 +2,24 @@ package com.flagservice.feature_flag_service.dto;
 
 public class FlagEvaluationRequest {
 
-    private Long userId;
+    private String userId;  // Changed from Long to String
     private String flagName;
 
-
+    // Constructors
     public FlagEvaluationRequest() {
     }
 
-    public FlagEvaluationRequest(Long userId, String flagName) {
+    public FlagEvaluationRequest(String userId, String flagName) {
         this.userId = userId;
         this.flagName = flagName;
     }
 
-    public Long getUserId() {
+    // Getters and Setters
+    public String getUserId() {
         return userId;
     }
 
-    public void setUserId(Long userId) {
+    public void setUserId(String userId) {
         this.userId = userId;
     }
 
@@ -33,10 +34,8 @@ public class FlagEvaluationRequest {
     @Override
     public String toString() {
         return "FlagEvaluationRequest{" +
-                "userId=" + userId +
+                "userId='" + userId + '\'' +
                 ", flagName='" + flagName + '\'' +
                 '}';
     }
-
-
 }
