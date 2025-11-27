@@ -23,6 +23,9 @@ public class Flag {
     @Column(name = "rollout_percentage", nullable = false)
     private int rolloutPercentage;
 
+    @Column(name = "target_user_ids", length = 2000)
+    private String targetUserIds;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -44,6 +47,7 @@ public class Flag {
         this.description = description;
         this.enabled = enabled;
         this.rolloutPercentage = rolloutPercentage;
+        this.targetUserIds = "";  // Default to empty
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
     }
@@ -101,6 +105,14 @@ public class Flag {
 
     public void setRolloutPercentage(int rolloutPercentage) {
         this.rolloutPercentage = rolloutPercentage;
+    }
+
+    public String getTargetUserIds() {
+        return targetUserIds;
+    }
+
+    public void setTargetUserIds(String targetUserIds) {
+        this.targetUserIds = targetUserIds;
     }
 
     public LocalDateTime getCreatedAt() {
