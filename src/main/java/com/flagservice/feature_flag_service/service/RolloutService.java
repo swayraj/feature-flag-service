@@ -1,5 +1,6 @@
 package com.flagservice.feature_flag_service.service;
 
+import com.flagservice.feature_flag_service.dto.BatchEvaluationResponse;
 import com.flagservice.feature_flag_service.dto.FlagEvaluationResponse;
 import com.flagservice.feature_flag_service.exception.FlagNotFoundException;
 import com.flagservice.feature_flag_service.model.Flag;
@@ -11,6 +12,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class RolloutService {
@@ -218,4 +220,49 @@ public class RolloutService {
                     flagName, usersEnabled, totalUsers, actualPercentage);
         }
     }
+
+    //Evaluate a flag for multiple users at once
+    public BatchEvaluationResponse evaluateFlagForUsers(String flagName, List<String> userIds) {
+        // Evaluate each user
+        List<FlagEvaluationResponse> results = userIds.stream()
+                .map(userId -> evaluateFlag(flagName, userId))
+                .toList();
+
+        return new BatchEvaluationResponse(flagName, results);
+    }
+
+    //Simulate rollout with generated user IDs
+    public BatchEvaluationResponse simulateRollout(String flagName, int numberOfUsers) {
+        // Generate test user IDs
+        List<String> userIds = new java.util.ArrayList<>();
+        for (int i = 1; i <= numberOfUsers; i++) {
+            userIds.add("user-" + i);
+        }
+
+        return evaluateFlagForUsers(flagName, userIds);
+    }
+
+    //Get distribution buckets (0-9, 10-19, 20-29, etc.)
+    public Map<String, Integer> getDistributionBuckets(String flagName, int sampleSize) {
+        Map<String, Integer> buckets = new java.util.LinkedHashMap<>();
+
+        // Initialize buckets
+        for (int i = 0; i < 10; i++) {
+            int start = i * 10;
+            int end = start + 9;
+            buckets.put(start + "-" + end, 0);
+        }
+
+        // Count users in each bucket
+        for (int i = 1; i <= sampleSize; i++) {
+            String userId = "user-" + i;
+            int bucket = getUserBucket(flagName, userId);
+            int bucketGroup = (bucket / 10) * 10;
+            String key = bucketGroup + "-" + (bucketGroup + 9);
+            buckets.put(key, buckets.get(key) + 1);
+        }
+
+        return buckets;
+    }
+
 }
