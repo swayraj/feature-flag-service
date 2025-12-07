@@ -26,6 +26,24 @@ public class Flag {
     @Column(name = "target_user_ids", length = 2000)
     private String targetUserIds;
 
+    @Column(name = "scheduled_rollout_percentage")
+    private Integer scheduledRolloutPercentage;  // Percentage to change to
+
+    @Column(name = "scheduled_rollout_time")
+    private LocalDateTime scheduledRolloutTime;  // When to apply the change
+
+    @Column(name = "auto_rollout_enabled")
+    private Boolean autoRolloutEnabled;  // Enable gradual auto-rollout
+
+    @Column(name = "auto_rollout_step")
+    private Integer autoRolloutStep;  // Increment by X% each step (e.g., 25)
+
+    @Column(name = "auto_rollout_interval_hours")
+    private Integer autoRolloutIntervalHours;  // Hours between steps (e.g., 24)
+
+    @Column(name = "user_segment")
+    private String userSegment;  // JSON: {"country":"US","platform":"iOS"}
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -38,6 +56,7 @@ public class Flag {
         this.updatedAt = LocalDateTime.now();
         this.rolloutPercentage = 0;
         this.enabled = false;
+        this.autoRolloutEnabled = false;
     }
 
     // Constructor with parameters
@@ -47,9 +66,10 @@ public class Flag {
         this.description = description;
         this.enabled = enabled;
         this.rolloutPercentage = rolloutPercentage;
-        this.targetUserIds = "";  // Default to empty
+        this.targetUserIds = "";
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
+        this.autoRolloutEnabled = false;
     }
 
     // Automatically set timestamps before save
@@ -129,6 +149,54 @@ public class Flag {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public Integer getScheduledRolloutPercentage() {
+        return scheduledRolloutPercentage;
+    }
+
+    public void setScheduledRolloutPercentage(Integer scheduledRolloutPercentage) {
+        this.scheduledRolloutPercentage = scheduledRolloutPercentage;
+    }
+
+    public LocalDateTime getScheduledRolloutTime() {
+        return scheduledRolloutTime;
+    }
+
+    public void setScheduledRolloutTime(LocalDateTime scheduledRolloutTime) {
+        this.scheduledRolloutTime = scheduledRolloutTime;
+    }
+
+    public Boolean isAutoRolloutEnabled() {
+        return autoRolloutEnabled;
+    }
+
+    public void setAutoRolloutEnabled(Boolean autoRolloutEnabled) {
+        this.autoRolloutEnabled = autoRolloutEnabled;
+    }
+
+    public Integer getAutoRolloutStep() {
+        return autoRolloutStep;
+    }
+
+    public void setAutoRolloutStep(Integer autoRolloutStep) {
+        this.autoRolloutStep = autoRolloutStep;
+    }
+
+    public Integer getAutoRolloutIntervalHours() {
+        return autoRolloutIntervalHours;
+    }
+
+    public void setAutoRolloutIntervalHours(Integer autoRolloutIntervalHours) {
+        this.autoRolloutIntervalHours = autoRolloutIntervalHours;
+    }
+
+    public String getUserSegment() {
+        return userSegment;
+    }
+
+    public void setUserSegment(String userSegment) {
+        this.userSegment = userSegment;
     }
 
     @Override

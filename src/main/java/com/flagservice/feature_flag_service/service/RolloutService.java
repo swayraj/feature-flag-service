@@ -221,7 +221,7 @@ public class RolloutService {
         }
     }
 
-    //Evaluate a flag for multiple users at once
+    // Evaluate a flag for multiple users at once
     public BatchEvaluationResponse evaluateFlagForUsers(String flagName, List<String> userIds) {
         // Evaluate each user
         List<FlagEvaluationResponse> results = userIds.stream()
@@ -231,7 +231,7 @@ public class RolloutService {
         return new BatchEvaluationResponse(flagName, results);
     }
 
-    //Simulate rollout with generated user IDs
+    // Simulate rollout with generated user IDs
     public BatchEvaluationResponse simulateRollout(String flagName, int numberOfUsers) {
         // Generate test user IDs
         List<String> userIds = new java.util.ArrayList<>();
@@ -242,7 +242,7 @@ public class RolloutService {
         return evaluateFlagForUsers(flagName, userIds);
     }
 
-    //Get distribution buckets (0-9, 10-19, 20-29, etc.)
+    // Get distribution buckets (0-9, 10-19, 20-29, etc.)
     public Map<String, Integer> getDistributionBuckets(String flagName, int sampleSize) {
         Map<String, Integer> buckets = new java.util.LinkedHashMap<>();
 
@@ -265,4 +265,103 @@ public class RolloutService {
         return buckets;
     }
 
+    // ========== NEW METHODS FOR USER SEGMENTATION ==========
+
+    /**
+     * Check if user matches segment criteria
+     */
+    private boolean matchesUserSegment(Flag flag, Map<String, String> userAttributes) {
+        String segment = flag.getUserSegment();
+
+        if (segment == null || segment.trim().isEmpty() || userAttributes == null) {
+            return true;  // No segment restriction
+        }
+
+        try {
+            // Simple key-value matching (in production, use JSON parser)
+            // Format: {"country":"US","platform":"iOS"}
+
+            // Remove braces and quotes for simple parsing
+            segment = segment.replace("{", "").replace("}", "")
+                    .replace("\"", "").replace(" ", "");
+
+            String[] criteria = segment.split(",");
+
+            for (String criterion : criteria) {
+                String[] parts = criterion.split(":");
+                if (parts.length == 2) {
+                    String key = parts[0];
+                    String requiredValue = parts[1];
+                    String actualValue = userAttributes.get(key);
+
+                    if (actualValue == null || !actualValue.equalsIgnoreCase(requiredValue)) {
+                        return false;  // User doesn't match this criterion
+                    }
+                }
+            }
+
+            return true;  // User matches all criteria
+
+        } catch (Exception e) {
+            System.err.println("Error parsing user segment: " + e.getMessage());
+            return true;  // Default to allowing access if parsing fails
+        }
+    }
+
+    /**
+     * Evaluate flag with user attributes (for segmentation)
+     */
+    public FlagEvaluationResponse evaluateFlagWithAttributes(String flagName, String userId,
+                                                             Map<String, String> userAttributes) {
+        Flag flag = flagRepository.findByNameIgnoreCase(flagName)
+                .orElseThrow(() -> new FlagNotFoundException("Flag '" + flagName + "' not found"));
+
+        // If flag is disabled globally, nobody gets it
+        if (!flag.isEnabled()) {
+            return new FlagEvaluationResponse(
+                    flagName,
+                    false,
+                    userId,
+                    "Flag is disabled globally"
+            );
+        }
+
+        // Check user segment match
+        if (!matchesUserSegment(flag, userAttributes)) {
+            return new FlagEvaluationResponse(
+                    flagName,
+                    false,
+                    userId,
+                    "User does not match segment criteria"
+            );
+        }
+
+        // Check if user is specifically targeted
+        if (isUserTargeted(flag, userId)) {
+            return new FlagEvaluationResponse(
+                    flagName,
+                    true,
+                    userId,
+                    "User is specifically targeted"
+            );
+        }
+
+        // Check percentage rollout
+        if (isUserInRolloutPercentage(flag, userId)) {
+            return new FlagEvaluationResponse(
+                    flagName,
+                    true,
+                    userId,
+                    "User is in rollout percentage (" + flag.getRolloutPercentage() + "%)"
+            );
+        }
+
+        // User doesn't get the feature
+        return new FlagEvaluationResponse(
+                flagName,
+                false,
+                userId,
+                "User not in rollout percentage"
+        );
+    }
 }

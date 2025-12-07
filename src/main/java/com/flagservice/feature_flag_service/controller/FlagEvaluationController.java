@@ -161,4 +161,28 @@ public class FlagEvaluationController {
         return ResponseEntity.ok(visual.toString());
     }
 
+    /**
+     * Evaluate flag with user attributes (for segmentation)
+     * POST /api/evaluate/segment
+     * Body: {"userId": "user-123", "flagName": "premium_feature", "attributes": {"country": "US", "platform": "iOS"}}
+     */
+    @PostMapping("/segment")
+    public ResponseEntity<?> evaluateFlagWithSegment(@RequestBody Map<String, Object> request) {
+        try {
+            String userId = request.get("userId").toString();
+            String flagName = request.get("flagName").toString();
+
+            @SuppressWarnings("unchecked")
+            Map<String, String> attributes = (Map<String, String>) request.get("attributes");
+
+            FlagEvaluationResponse response = rolloutService.evaluateFlagWithAttributes(
+                    flagName, userId, attributes);
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        }
+    }
+
 }
