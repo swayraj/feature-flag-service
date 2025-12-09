@@ -7,6 +7,10 @@ import com.flagservice.feature_flag_service.model.Flag;
 import com.flagservice.feature_flag_service.repository.FlagRepository;
 import org.springframework.stereotype.Service;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
+
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -25,8 +29,12 @@ public class RolloutService {
 
     /**
      * Evaluate if a user should get a feature flag
+     * Result is cached for better performance
      */
+    @Cacheable(value = "flagEvaluation", key = "#flagName + ':' + #userId")
     public FlagEvaluationResponse evaluateFlag(String flagName, String userId) {
+        System.out.println("🔍 Cache MISS - Querying database for: " + flagName + ":" + userId);
+
         // Find the flag
         Flag flag = flagRepository.findByNameIgnoreCase(flagName)
                 .orElseThrow(() -> new FlagNotFoundException("Flag '" + flagName + "' not found"));

@@ -4,6 +4,7 @@ import com.flagservice.feature_flag_service.exception.FlagNotFoundException;
 import com.flagservice.feature_flag_service.exception.FlagValidationException;
 import com.flagservice.feature_flag_service.model.Flag;
 import com.flagservice.feature_flag_service.repository.FlagRepository;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -66,7 +67,9 @@ public class FlagService {
 
     /**
      * Update an existing flag
+     * Invalidates all cache entries for this flag
      */
+    @CacheEvict(value = "flagEvaluation", allEntries = true)
     public Flag updateFlag(Long id, Flag updatedFlag) {
         Flag existingFlag = flagRepository.findById(id)
                 .orElseThrow(() -> new FlagNotFoundException(id));
@@ -88,13 +91,14 @@ public class FlagService {
         existingFlag.setEnabled(updatedFlag.isEnabled());
         existingFlag.setRolloutPercentage(updatedFlag.getRolloutPercentage());
 
-        // Save to database (JPA will update automatically due to @Transactional)
         return flagRepository.save(existingFlag);
     }
 
     /**
      * Delete a flag
+     * Clears cache
      */
+    @CacheEvict(value = "flagEvaluation", allEntries = true)
     public void deleteFlag(Long id) {
         if (!flagRepository.existsById(id)) {
             throw new FlagNotFoundException(id);
@@ -121,7 +125,9 @@ public class FlagService {
 
     /**
      * Toggle flag on/off
+     * Clears cache
      */
+    @CacheEvict(value = "flagEvaluation", allEntries = true)
     public Flag toggleFlag(Long id) {
         Flag flag = flagRepository.findById(id)
                 .orElseThrow(() -> new FlagNotFoundException(id));

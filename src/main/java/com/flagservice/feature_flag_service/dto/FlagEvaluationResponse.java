@@ -1,11 +1,11 @@
 package com.flagservice.feature_flag_service.dto;
 
-public class FlagEvaluationResponse {
+public class FlagEvaluationResponse{
 
     private String flagName;
     private boolean enabled;
     private String userId;
-    private String reason;  // Why user got/didn't get the feature
+    private String reason;
 
     // Constructors
     public FlagEvaluationResponse() {
