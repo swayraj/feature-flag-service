@@ -16,10 +16,12 @@ import java.util.Optional;
 public class FlagService {
 
     private final FlagRepository flagRepository;
+    private final FlagEventService flagEventService;
 
     // Constructor injection
-    public FlagService(FlagRepository flagRepository) {
+    public FlagService(FlagRepository flagRepository, FlagEventService flagEventService) {
         this.flagRepository = flagRepository;
+        this.flagEventService = flagEventService;
         initializeSampleData();
     }
 
@@ -61,8 +63,12 @@ public class FlagService {
             throw new FlagValidationException("Flag with name '" + flag.getName() + "' already exists");
         }
 
-        // Save to database
-        return flagRepository.save(flag);
+        Flag savedFlag = flagRepository.save(flag);
+
+        // Broadcast event
+        flagEventService.broadcastFlagCreated(savedFlag);
+
+        return savedFlag;
     }
 
     /**
@@ -91,7 +97,12 @@ public class FlagService {
         existingFlag.setEnabled(updatedFlag.isEnabled());
         existingFlag.setRolloutPercentage(updatedFlag.getRolloutPercentage());
 
-        return flagRepository.save(existingFlag);
+        Flag savedFlag = flagRepository.save(existingFlag);
+
+        // Broadcast event
+        flagEventService.broadcastFlagUpdated(savedFlag);
+
+        return savedFlag;
     }
 
     /**
@@ -100,10 +111,15 @@ public class FlagService {
      */
     @CacheEvict(value = "flagEvaluation", allEntries = true)
     public void deleteFlag(Long id) {
-        if (!flagRepository.existsById(id)) {
-            throw new FlagNotFoundException(id);
-        }
+        Flag flag = flagRepository.findById(id)
+                .orElseThrow(() -> new FlagNotFoundException(id));
+
+        String flagName = flag.getName();
+
         flagRepository.deleteById(id);
+
+        // Broadcast event
+        flagEventService.broadcastFlagDeleted(id, flagName);
     }
 
     /**
@@ -134,7 +150,12 @@ public class FlagService {
 
         flag.setEnabled(!flag.isEnabled());
 
-        return flagRepository.save(flag);
+        Flag savedFlag = flagRepository.save(flag);
+
+        // Broadcast event
+        flagEventService.broadcastFlagToggled(savedFlag);
+
+        return savedFlag;
     }
 
     // ========== VALIDATION METHODS ==========
