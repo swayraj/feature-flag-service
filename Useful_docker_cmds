@@ -1,0 +1,23 @@
+# Start services
+docker-compose up -d
+
+# Stop services
+docker-compose down
+
+# Stop and remove volumes (fresh start)
+docker-compose down -v
+
+# View logs
+docker-compose logs -f flag-service
+
+# Rebuild and restart
+docker-compose up -d --build
+
+# Execute command in container
+docker exec -it flag-service-app sh
+
+# View container resource usage
+docker stats
+
+# Clean up unused images
+docker image prune -a

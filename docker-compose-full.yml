@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: flag-service-db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-flagservice}
+      POSTGRES_USER: ${POSTGRES_USER:-flaguser}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - flag-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: flag-service-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - flag-network
+
+  flag-service:
+    image: feature-flag-service:latest
+    container_name: flag-service-app
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://${POSTGRES_HOST:-postgres}:5432/${POSTGRES_DB:-flagservice}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-flaguser}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      SPRING_DATA_REDIS_HOST: ${REDIS_HOST:-redis}
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-prod}
+    ports:
+      - "8080:8080"
+    networks:
+      - flag-network
+
+  demo-app:
+    image: demo-app:latest
+    container_name: demo-app
+    depends_on:
+      - flag-service
+    environment:
+      FLAG_SERVICE_URL: http://${FLAG_SERVICE_HOST:-flag-service}:8080
+    ports:
+      - "8081:8081"
+    networks:
+      - flag-network
+
+networks:
+  flag-network:
+
+volumes:
+  postgres_data:
