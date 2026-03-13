@@ -12,9 +12,12 @@ import java.util.Map;
 public class FlagEventService {
 
     private final SimpMessagingTemplate messagingTemplate;
+    private final WebhookService webhookService;
 
-    public FlagEventService(SimpMessagingTemplate messagingTemplate) {
+    public FlagEventService(SimpMessagingTemplate messagingTemplate,
+                            WebhookService webhookService) {
         this.messagingTemplate = messagingTemplate;
+        this.webhookService = webhookService;
     }
 
     public void broadcastFlagCreated(Flag flag) {
@@ -26,7 +29,8 @@ public class FlagEventService {
         event.put("rolloutPercentage", flag.getRolloutPercentage());
         event.put("timestamp", LocalDateTime.now().toString());
 
-        messagingTemplate.convertAndSend("/topic/flags", (Object) event);  // ← Cast to Object
+        messagingTemplate.convertAndSend("/topic/flags", (Object) event);
+        webhookService.deliverEvent("FLAG_CREATED", event);
         System.out.println("📡 Broadcasted: FLAG_CREATED - " + flag.getName());
     }
 
@@ -39,7 +43,8 @@ public class FlagEventService {
         event.put("rolloutPercentage", flag.getRolloutPercentage());
         event.put("timestamp", LocalDateTime.now().toString());
 
-        messagingTemplate.convertAndSend("/topic/flags", (Object) event);  // ← Cast to Object
+        messagingTemplate.convertAndSend("/topic/flags", (Object) event);
+        webhookService.deliverEvent("FLAG_UPDATED", event);
         System.out.println("📡 Broadcasted: FLAG_UPDATED - " + flag.getName());
     }
 
@@ -50,7 +55,8 @@ public class FlagEventService {
         event.put("flagName", flagName);
         event.put("timestamp", LocalDateTime.now().toString());
 
-        messagingTemplate.convertAndSend("/topic/flags", (Object) event);  // ← Cast to Object
+        messagingTemplate.convertAndSend("/topic/flags", (Object) event);
+        webhookService.deliverEvent("FLAG_DELETED", event);
         System.out.println("📡 Broadcasted: FLAG_DELETED - " + flagName);
     }
 
@@ -62,7 +68,8 @@ public class FlagEventService {
         event.put("enabled", flag.isEnabled());
         event.put("timestamp", LocalDateTime.now().toString());
 
-        messagingTemplate.convertAndSend("/topic/flags", (Object) event);  // ← Cast to Object
+        messagingTemplate.convertAndSend("/topic/flags", (Object) event);
+        webhookService.deliverEvent("FLAG_TOGGLED", event);
         System.out.println("📡 Broadcasted: FLAG_TOGGLED - " + flag.getName() + " → " + flag.isEnabled());
     }
 }

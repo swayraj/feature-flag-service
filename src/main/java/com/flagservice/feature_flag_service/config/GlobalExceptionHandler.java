@@ -2,6 +2,8 @@ package com.flagservice.feature_flag_service.config;
 
 import com.flagservice.feature_flag_service.exception.FlagNotFoundException;
 import com.flagservice.feature_flag_service.exception.FlagValidationException;
+import com.flagservice.feature_flag_service.exception.WebhookNotFoundException;
+import com.flagservice.feature_flag_service.exception.WebhookValidationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -14,9 +16,6 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    /**
-     * Handle FlagNotFoundException
-     */
     @ExceptionHandler(FlagNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handleFlagNotFoundException(FlagNotFoundException ex) {
         Map<String, Object> errorResponse = new HashMap<>();
@@ -24,13 +23,9 @@ public class GlobalExceptionHandler {
         errorResponse.put("status", HttpStatus.NOT_FOUND.value());
         errorResponse.put("error", "Not Found");
         errorResponse.put("message", ex.getMessage());
-
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
     }
 
-    /**
-     * Handle FlagValidationException
-     */
     @ExceptionHandler(FlagValidationException.class)
     public ResponseEntity<Map<String, Object>> handleFlagValidationException(FlagValidationException ex) {
         Map<String, Object> errorResponse = new HashMap<>();
@@ -38,13 +33,29 @@ public class GlobalExceptionHandler {
         errorResponse.put("status", HttpStatus.BAD_REQUEST.value());
         errorResponse.put("error", "Validation Error");
         errorResponse.put("message", ex.getMessage());
-
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
-    /**
-     * Handle generic exceptions
-     */
+    @ExceptionHandler(WebhookNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleWebhookNotFoundException(WebhookNotFoundException ex) {
+        Map<String, Object> errorResponse = new HashMap<>();
+        errorResponse.put("timestamp", LocalDateTime.now());
+        errorResponse.put("status", HttpStatus.NOT_FOUND.value());
+        errorResponse.put("error", "Not Found");
+        errorResponse.put("message", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+    }
+
+    @ExceptionHandler(WebhookValidationException.class)
+    public ResponseEntity<Map<String, Object>> handleWebhookValidationException(WebhookValidationException ex) {
+        Map<String, Object> errorResponse = new HashMap<>();
+        errorResponse.put("timestamp", LocalDateTime.now());
+        errorResponse.put("status", HttpStatus.BAD_REQUEST.value());
+        errorResponse.put("error", "Validation Error");
+        errorResponse.put("message", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGenericException(Exception ex) {
         Map<String, Object> errorResponse = new HashMap<>();
@@ -52,7 +63,6 @@ public class GlobalExceptionHandler {
         errorResponse.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
         errorResponse.put("error", "Internal Server Error");
         errorResponse.put("message", "An unexpected error occurred: " + ex.getMessage());
-
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
     }
 }

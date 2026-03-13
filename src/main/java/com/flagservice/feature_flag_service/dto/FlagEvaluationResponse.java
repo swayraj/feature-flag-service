@@ -1,13 +1,16 @@
 package com.flagservice.feature_flag_service.dto;
 
-public class FlagEvaluationResponse{
+import java.io.Serializable;
+
+public class FlagEvaluationResponse implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private String flagName;
     private boolean enabled;
     private String userId;
     private String reason;
 
-    // Constructors
     public FlagEvaluationResponse() {
     }
 
@@ -18,38 +21,17 @@ public class FlagEvaluationResponse{
         this.reason = reason;
     }
 
-    // Getters and Setters
-    public String getFlagName() {
-        return flagName;
-    }
+    public String getFlagName() { return flagName; }
+    public void setFlagName(String flagName) { this.flagName = flagName; }
 
-    public void setFlagName(String flagName) {
-        this.flagName = flagName;
-    }
+    public boolean isEnabled() { return enabled; }
+    public void setEnabled(boolean enabled) { this.enabled = enabled; }
 
-    public boolean isEnabled() {
-        return enabled;
-    }
+    public String getUserId() { return userId; }
+    public void setUserId(String userId) { this.userId = userId; }
 
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
-
-    public String getReason() {
-        return reason;
-    }
-
-    public void setReason(String reason) {
-        this.reason = reason;
-    }
+    public String getReason() { return reason; }
+    public void setReason(String reason) { this.reason = reason; }
 
     @Override
     public String toString() {
