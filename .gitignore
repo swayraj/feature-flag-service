@@ -18,3 +18,9 @@ application-local.properties
 # Ignore OS files
 .DS_Store
 Thumbs.db
+
+# Local-only project files (not for public repo)
+PLAN.md
+PROGRESS.md
+CLAUDE.md
+progress.txt.txt
