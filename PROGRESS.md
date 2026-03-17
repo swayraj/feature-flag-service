@@ -105,6 +105,16 @@
 
 ---
 
+## Day 14 — CI/CD Pipeline
+**Commit:** `cddcb8a`
+- `build-and-test.yml`: triggers on every push, spins up real Postgres + Redis service containers, compiles and tests with Maven
+- `docker-publish.yml`: triggers on push to main, builds JAR, pushes Docker image to Docker Hub with `latest` + `sha-*` tags
+- Added Docker Buildx setup for GHA layer caching support
+- Fixed Redis readiness check to use `nc` instead of `redis-cli` (not available on ubuntu runners)
+- Both pipelines verified green on GitHub Actions
+
+---
+
 ## Day 13 — Kubernetes Manifests
 **Commit:** `558fa7c`
 - Created `k8s/` folder with 6 production-ready manifest files (10 K8s resources total)

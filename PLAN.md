@@ -30,7 +30,7 @@ backend API, infrastructure, DevOps, and a frontend admin UI over 30 days.
 | Day 11 | Docker — multi-stage Dockerfile + docker-compose (app + postgres + redis) | ✅ Done |
 | Day 12 | Webhook system — async delivery, 3-retry + backoff, HMAC-SHA256 signing | ✅ Done |
 | Day 13 | Kubernetes — full stack manifests (ConfigMap, Secret, PVC, Deployments, Services, Ingress, health probes) | ✅ Done |
-| Day 14 | CI/CD — GitHub Actions pipeline (build, test, Docker push) | ⬜ Next |
+| Day 14 | CI/CD — GitHub Actions pipeline (build, test, Docker push) | ✅ Done |
 
 ---
 
@@ -38,7 +38,7 @@ backend API, infrastructure, DevOps, and a frontend admin UI over 30 days.
 
 | Day | Goal | Status |
 |-----|------|--------|
-| Day 15 | Unit tests — service layer (JUnit 5 + Mockito) | ⬜ |
+| Day 15 | Unit tests — service layer (JUnit 5 + Mockito) | ⬜ Next |
 | Day 16 | Integration tests — full API tests with TestContainers (real Postgres + Redis) | ⬜ |
 | Day 17 | API documentation — Swagger/OpenAPI (springdoc) | ⬜ |
 | Day 18 | Rate limiting + security hardening (API keys or JWT) | ⬜ |
