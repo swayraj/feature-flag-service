@@ -106,7 +106,7 @@
 ---
 
 ## Day 13 — Kubernetes Manifests
-**Commit:** `<hash>`
+**Commit:** `558fa7c`
 - Created `k8s/` folder with 6 production-ready manifest files (10 K8s resources total)
 - `configmap.yaml` — environment variables for the Spring Boot app
 - `secret.yaml` — base64-encoded DB credentials, pulled into Postgres via `secretKeyRef`
