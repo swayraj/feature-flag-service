@@ -29,11 +29,6 @@ jobs:
         image: redis:7-alpine
         ports:
           - 6379:6379
-        options: >-
-          --health-cmd="redis-cli ping"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
 
     steps:
       - name: Checkout code
@@ -52,7 +47,7 @@ jobs:
           until pg_isready -h localhost -p 5432; do sleep 2; done
 
           echo "Waiting for Redis..."
-          until redis-cli -h localhost -p 6379 ping; do sleep 2; done
+          until nc -z localhost 6379; do sleep 2; done
 
       - name: Build and test with Maven
         run: mvn -B verify --no-transfer-progress
