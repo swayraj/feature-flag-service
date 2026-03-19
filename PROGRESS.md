@@ -116,7 +116,7 @@
 ---
 
 ## Day 16 — Integration Tests
-**Commit:** `TBD`
+**Commit:** `26466cd`
 - 13 integration tests in `FlagControllerIntegrationTest` — all hitting a real Postgres + Redis via TestContainers
 - TestContainers spins up `postgres:15-alpine` and `redis:7-alpine` containers per test run
 - Tests cover: GET all, GET by id (200 + 404), POST create (valid + duplicate + invalid), PUT update, DELETE, toggle, enabled filter, name search
