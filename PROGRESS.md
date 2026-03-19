@@ -115,6 +115,15 @@
 
 ---
 
+## Day 15 — Unit Tests
+**Commit:** `TBD`
+- 27 unit tests across 2 test classes, all passing (0 failures)
+- `FlagServiceTest` — 17 tests covering createFlag (validation, duplicates), updateFlag, deleteFlag, toggleFlag, getAllFlags, getFlagById
+- `RolloutServiceTest` — 10 tests covering disabled flags, targeted users, 0%/100% rollout, consistent hashing, user segmentation
+- No Spring context loaded — pure JUnit 5 + Mockito, tests run in ~3 seconds
+
+---
+
 ## Day 13 — Kubernetes Manifests
 **Commit:** `558fa7c`
 - Created `k8s/` folder with 6 production-ready manifest files (10 K8s resources total)
