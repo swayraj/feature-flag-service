@@ -115,6 +115,16 @@
 
 ---
 
+## Day 16 — Integration Tests
+**Commit:** `TBD`
+- 13 integration tests in `FlagControllerIntegrationTest` — all hitting a real Postgres + Redis via TestContainers
+- TestContainers spins up `postgres:15-alpine` and `redis:7-alpine` containers per test run
+- Tests cover: GET all, GET by id (200 + 404), POST create (valid + duplicate + invalid), PUT update, DELETE, toggle, enabled filter, name search
+- Discovered Spring Boot 4 breaking changes: Jackson 3 package moved to `tools.jackson.databind`, `AutoConfigureMockMvc` moved to `org.springframework.boot.webmvc.test.autoconfigure`
+- Total test count across both days: 40 tests (27 unit + 13 integration), all green
+
+---
+
 ## Day 15 — Unit Tests
 **Commit:** `d8180ac`
 - 27 unit tests across 2 test classes, all passing (0 failures)

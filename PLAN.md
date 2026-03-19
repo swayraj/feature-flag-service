@@ -39,7 +39,7 @@ backend API, infrastructure, DevOps, and a frontend admin UI over 30 days.
 | Day | Goal | Status |
 |-----|------|--------|
 | Day 15 | Unit tests — service layer (JUnit 5 + Mockito) | ✅ Done |
-| Day 16 | Integration tests — full API tests with TestContainers (real Postgres + Redis) | ⬜ |
+| Day 16 | Integration tests — full API tests with TestContainers (real Postgres + Redis) | ✅ Done |
 | Day 17 | API documentation — Swagger/OpenAPI (springdoc) | ⬜ |
 | Day 18 | Rate limiting + security hardening (API keys or JWT) | ⬜ |
 | Day 19 | Performance testing — load test with k6 or JMeter | ⬜ |
