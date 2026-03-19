@@ -116,7 +116,7 @@
 ---
 
 ## Day 15 — Unit Tests
-**Commit:** `TBD`
+**Commit:** `d8180ac`
 - 27 unit tests across 2 test classes, all passing (0 failures)
 - `FlagServiceTest` — 17 tests covering createFlag (validation, duplicates), updateFlag, deleteFlag, toggleFlag, getAllFlags, getFlagById
 - `RolloutServiceTest` — 10 tests covering disabled flags, targeted users, 0%/100% rollout, consistent hashing, user segmentation
