@@ -115,6 +115,17 @@
 
 ---
 
+## Day 18 — API Key Authentication + Rate Limiting
+**Commit:** `eac943c`
+- Added `ApiKey` model + `api_keys` table (JPA auto-created)
+- `ApiKeyRepository` with `findByKeyValueAndActiveTrue` for single-query validation
+- `ApiKeyFilter` (`OncePerRequestFilter`) — intercepts every request, checks `X-API-Key` header, returns 401 if missing/invalid
+- Bucket4j rate limiting — 20 requests/min per API key using in-memory token bucket (`ConcurrentHashMap<String, Bucket>`)
+- `data.sql` seeds a `test-key-123` dev key on startup (idempotent with `WHERE NOT EXISTS`)
+- Day 17 (Swagger/OpenAPI) blocked — springdoc incompatible with Spring Boot 4 due to Jackson 2 vs Jackson 3 conflict
+
+---
+
 ## Day 16 — Integration Tests
 **Commit:** `26466cd`
 - 13 integration tests in `FlagControllerIntegrationTest` — all hitting a real Postgres + Redis via TestContainers
