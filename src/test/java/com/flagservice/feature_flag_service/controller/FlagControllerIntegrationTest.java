@@ -26,6 +26,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Testcontainers
 class FlagControllerIntegrationTest {
 
+    private static final String TEST_API_KEY = "test-key-123";
+
     @Container
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15-alpine");
 
@@ -61,7 +63,8 @@ class FlagControllerIntegrationTest {
 
     @Test
     void getAllFlags_emptyDb_returnsEmptyList() throws Exception {
-        mockMvc.perform(get("/api/flags"))
+        mockMvc.perform(get("/api/flags")
+                        .header("X-API-Key", TEST_API_KEY))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(0)));
     }
@@ -73,6 +76,7 @@ class FlagControllerIntegrationTest {
         Flag flag = new Flag(null, "test_flag", "Integration test flag", true, 50);
 
         mockMvc.perform(post("/api/flags")
+                        .header("X-API-Key", TEST_API_KEY)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(flag)))
                 .andExpect(status().isCreated())
@@ -87,6 +91,7 @@ class FlagControllerIntegrationTest {
         flagRepository.save(flag);
 
         mockMvc.perform(post("/api/flags")
+                        .header("X-API-Key", TEST_API_KEY)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(flag)))
                 .andExpect(status().isBadRequest())
@@ -98,6 +103,7 @@ class FlagControllerIntegrationTest {
         Flag flag = new Flag(null, "ab", "too short", true, 50);
 
         mockMvc.perform(post("/api/flags")
+                        .header("X-API-Key", TEST_API_KEY)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(flag)))
                 .andExpect(status().isBadRequest());
@@ -108,6 +114,7 @@ class FlagControllerIntegrationTest {
         Flag flag = new Flag(null, "valid_flag", "desc", true, 150);
 
         mockMvc.perform(post("/api/flags")
+                        .header("X-API-Key", TEST_API_KEY)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(flag)))
                 .andExpect(status().isBadRequest());
@@ -119,14 +126,16 @@ class FlagControllerIntegrationTest {
     void getFlagById_existingFlag_returns200() throws Exception {
         Flag saved = flagRepository.save(new Flag(null, "test_flag", "desc", true, 50));
 
-        mockMvc.perform(get("/api/flags/" + saved.getId()))
+        mockMvc.perform(get("/api/flags/" + saved.getId())
+                        .header("X-API-Key", TEST_API_KEY))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("test_flag"));
     }
 
     @Test
     void getFlagById_nonExistentId_returns404() throws Exception {
-        mockMvc.perform(get("/api/flags/99999"))
+        mockMvc.perform(get("/api/flags/99999")
+                        .header("X-API-Key", TEST_API_KEY))
                 .andExpect(status().isNotFound());
     }
 
@@ -138,6 +147,7 @@ class FlagControllerIntegrationTest {
         Flag update = new Flag(null, "test_flag", "new desc", true, 75);
 
         mockMvc.perform(put("/api/flags/" + saved.getId())
+                        .header("X-API-Key", TEST_API_KEY)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(update)))
                 .andExpect(status().isOk())
@@ -152,7 +162,8 @@ class FlagControllerIntegrationTest {
     void toggleFlag_enabledFlag_disablesIt() throws Exception {
         Flag saved = flagRepository.save(new Flag(null, "test_flag", "desc", true, 50));
 
-        mockMvc.perform(post("/api/flags/" + saved.getId() + "/toggle"))
+        mockMvc.perform(post("/api/flags/" + saved.getId() + "/toggle")
+                        .header("X-API-Key", TEST_API_KEY))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.enabled").value(false));
     }
@@ -161,7 +172,8 @@ class FlagControllerIntegrationTest {
     void toggleFlag_disabledFlag_enablesIt() throws Exception {
         Flag saved = flagRepository.save(new Flag(null, "test_flag", "desc", false, 50));
 
-        mockMvc.perform(post("/api/flags/" + saved.getId() + "/toggle"))
+        mockMvc.perform(post("/api/flags/" + saved.getId() + "/toggle")
+                        .header("X-API-Key", TEST_API_KEY))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.enabled").value(true));
     }
@@ -172,10 +184,12 @@ class FlagControllerIntegrationTest {
     void deleteFlag_existingFlag_returns204ThenGone() throws Exception {
         Flag saved = flagRepository.save(new Flag(null, "test_flag", "desc", true, 50));
 
-        mockMvc.perform(delete("/api/flags/" + saved.getId()))
+        mockMvc.perform(delete("/api/flags/" + saved.getId())
+                        .header("X-API-Key", TEST_API_KEY))
                 .andExpect(status().isNoContent());
 
-        mockMvc.perform(get("/api/flags/" + saved.getId()))
+        mockMvc.perform(get("/api/flags/" + saved.getId())
+                        .header("X-API-Key", TEST_API_KEY))
                 .andExpect(status().isNotFound());
     }
 
@@ -186,7 +200,8 @@ class FlagControllerIntegrationTest {
         flagRepository.save(new Flag(null, "enabled_flag", "d", true, 50));
         flagRepository.save(new Flag(null, "disabled_flag", "d", false, 0));
 
-        mockMvc.perform(get("/api/flags/enabled"))
+        mockMvc.perform(get("/api/flags/enabled")
+                        .header("X-API-Key", TEST_API_KEY))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].name").value("enabled_flag"));
@@ -198,7 +213,8 @@ class FlagControllerIntegrationTest {
         flagRepository.save(new Flag(null, "dark_theme", "d", true, 50));
         flagRepository.save(new Flag(null, "new_checkout", "d", true, 50));
 
-        mockMvc.perform(get("/api/flags/search?name=dark"))
+        mockMvc.perform(get("/api/flags/search?name=dark")
+                        .header("X-API-Key", TEST_API_KEY))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)));
     }
