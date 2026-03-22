@@ -40,7 +40,7 @@ backend API, infrastructure, DevOps, and a frontend admin UI over 30 days.
 |-----|------|--------|
 | Day 15 | Unit tests — service layer (JUnit 5 + Mockito) | ✅ Done |
 | Day 16 | Integration tests — full API tests with TestContainers (real Postgres + Redis) | ✅ Done |
-| Day 17 | API documentation — Swagger/OpenAPI (springdoc) | ⏸ Blocked — springdoc incompatible with Spring Boot 4 (Jackson 2 vs Jackson 3), revisit when springdoc releases a fix |
+| Day 17 | API documentation — Swagger/OpenAPI (springdoc) | ✅ Done (resolved after Day 19 — springdoc 3.0.2 released with Spring Boot 4 support) |
 | Day 18 | Rate limiting + security hardening (API keys or JWT) | ✅ Done |
 | Day 19 | Performance testing — load test with k6 or JMeter | ✅ Done |
 | Day 20 | Buffer / catch-up day | ⬜ |

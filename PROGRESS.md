@@ -115,6 +115,16 @@
 
 ---
 
+## Day 17 — Swagger / OpenAPI Documentation (resolved after Day 19)
+**Commit:** `TBD`
+- Added springdoc-openapi-starter-webmvc-ui v3.0.2 (first version with official Spring Boot 4 support)
+- Whitelisted `/swagger-ui` and `/v3/api-docs` paths in `ApiKeyFilter` so Swagger UI is publicly accessible
+- Created `OpenApiConfig.java` — custom API title, version, and description
+- Swagger UI available at `http://localhost:8080/swagger-ui/index.html`
+- All controllers (flags, evaluation, scheduling, webhooks) automatically documented
+
+---
+
 ## Day 19 — Performance Testing with k6
 **Commit:** `7e53196`
 - Installed k6 load testing tool

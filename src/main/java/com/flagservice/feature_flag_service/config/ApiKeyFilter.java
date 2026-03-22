@@ -30,6 +30,12 @@ public class ApiKeyFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
+        String path = request.getRequestURI();
+        if (path.startsWith("/swagger-ui") || path.startsWith("/v3/api-docs")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String apiKey = request.getHeader("X-API-Key");
 
         if (apiKey == null || apiKeyRepository.findByKeyValueAndActiveTrue(apiKey).isEmpty()) {
