@@ -117,7 +117,8 @@
 
 ## Day 17 — Swagger / OpenAPI Documentation (resolved after Day 19)
 **Commit:** `2780f1d`
-- Added springdoc-openapi-starter-webmvc-ui v3.0.2 (first version with official Spring Boot 4 support)
+- Original block: Spring Boot 4 migrated from Jackson 2 (`com.fasterxml.jackson`) to Jackson 3 (`tools.jackson`), but springdoc's dependency swagger-core still imported Jackson 2 classes causing a conflict. Resolved when springdoc released v3.0.2 which upgraded swagger-core to 2.2.43 with full Jackson 3 / Spring Boot 4 support.
+- Added springdoc-openapi-starter-webmvc-ui v3.0.2
 - Whitelisted `/swagger-ui` and `/v3/api-docs` paths in `ApiKeyFilter` so Swagger UI is publicly accessible
 - Created `OpenApiConfig.java` — custom API title, version, and description
 - Swagger UI available at `http://localhost:8080/swagger-ui/index.html`
