@@ -50,16 +50,20 @@ backend API, infrastructure, DevOps, and a frontend admin UI over 30 days.
 
 ## Week 4 — Frontend & Polish (Days 22–30)
 
+**Frontend stack: React + Vite + Tailwind CSS**
+Built as a `frontend/` folder, Vite output copied into Spring Boot's `static/` at Docker build time.
+Everything served from one app at one URL — no separate frontend server needed.
+
 | Day | Goal | Status |
 |-----|------|--------|
-| Day 22 | Admin Web UI — HTML/JS or React scaffold, flag list view | ⬜ |
-| Day 23 | Admin UI — create/edit/delete flags, toggle switch | ⬜ |
-| Day 24 | Admin UI — rollout % slider, scheduled rollout form | ⬜ |
-| Day 25 | Admin UI — webhook management panel | ⬜ |
-| Day 26 | Admin UI — real-time live feed via WebSocket | ⬜ |
+| Day 22 | React + Vite + Tailwind scaffold, flag list view with enabled/disabled badges | ⬜ |
+| Day 23 | Create/edit/delete flags — slide-in form, toggle switch | ⬜ |
+| Day 24 | Rollout % slider, scheduled rollout form | ⬜ |
+| Day 25 | Webhook management panel | ⬜ |
+| Day 26 | Real-time live activity feed via WebSocket | ⬜ |
 | Day 27 | Analytics dashboard — flag evaluation stats, delivery success rates | ⬜ |
-| Day 28 | Final performance optimizations + caching review | ⬜ |
-| Day 29 | Final documentation (README, architecture diagram) | ⬜ |
+| Day 28 | Deploy to Railway — public live URL, CI/CD auto-deploy on push | ⬜ |
+| Day 29 | Final documentation — README, architecture diagram | ⬜ |
 | Day 30 | Demo video + project wrap-up | ⬜ |
 
 ---
