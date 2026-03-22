@@ -116,7 +116,7 @@
 ---
 
 ## Day 19 — Performance Testing with k6
-**Commit:** `TBD`
+**Commit:** `7e53196`
 - Installed k6 load testing tool
 - `k6/smoke-test.js` — 1 VU, 10 iterations, confirmed 100% pass, avg 9ms response
 - `k6/load-test.js` — 20 VUs, 50s ramp up/hold/down, 810 requests, 0 errors, p95 7.6ms
