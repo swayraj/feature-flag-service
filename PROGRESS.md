@@ -115,6 +115,17 @@
 
 ---
 
+## Day 19 — Performance Testing with k6
+**Commit:** `TBD`
+- Installed k6 load testing tool
+- `k6/smoke-test.js` — 1 VU, 10 iterations, confirmed 100% pass, avg 9ms response
+- `k6/load-test.js` — 20 VUs, 50s ramp up/hold/down, 810 requests, 0 errors, p95 7.6ms
+- `k6/stress-test.js` — 50 VUs, no sleep, ~627k requests, rate limiter correctly blocked 99.99% with 429s, server never crashed
+- Discovered stale Docker image bug (image was built before Day 18 code) — rebuilt image, confirmed rate limiter works correctly
+- Custom k6 `Counter` metric used to track 429 rate-limited requests separately
+
+---
+
 ## Day 18 — API Key Authentication + Rate Limiting
 **Commit:** `eac943c`
 - Added `ApiKey` model + `api_keys` table (JPA auto-created)
