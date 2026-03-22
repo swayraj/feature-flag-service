@@ -116,7 +116,7 @@
 ---
 
 ## Day 17 — Swagger / OpenAPI Documentation (resolved after Day 19)
-**Commit:** `TBD`
+**Commit:** `2780f1d`
 - Added springdoc-openapi-starter-webmvc-ui v3.0.2 (first version with official Spring Boot 4 support)
 - Whitelisted `/swagger-ui` and `/v3/api-docs` paths in `ApiKeyFilter` so Swagger UI is publicly accessible
 - Created `OpenApiConfig.java` — custom API title, version, and description
@@ -131,7 +131,7 @@
 - `k6/smoke-test.js` — 1 VU, 10 iterations, confirmed 100% pass, avg 9ms response
 - `k6/load-test.js` — 20 VUs, 50s ramp up/hold/down, 810 requests, 0 errors, p95 7.6ms
 - `k6/stress-test.js` — 50 VUs, no sleep, ~627k requests, rate limiter correctly blocked 99.99% with 429s, server never crashed
-- Discovered stale Docker image bug (image was built before Day 18 code) — rebuilt image, confirmed rate limiter works correctly
+- Discovered stale Docker image bug: k6 stress test showed 0 rate limiting (429s) despite correct Bucket4j code. Root cause — the running Docker image was built before Day 18, so the ApiKeyFilter with rate limiting was never included. Fixed by rebuilding the image with `./mvnw clean package` + `docker build`. After rebuild, rate limiter correctly blocked 99.99% of requests under stress.
 - Custom k6 `Counter` metric used to track 429 rate-limited requests separately
 
 ---
