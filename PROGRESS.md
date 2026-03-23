@@ -2,6 +2,19 @@
 
 ---
 
+## Day 20 — Canary Landing Page
+**Commit:** `c15aeae`
+- Built landing page served at `/` from `src/main/resources/static/index.html`
+- Stitch-generated HTML refined: 5 targeted fixes (Docs → Swagger UI, Explore Demo → `/app`, View GitHub → repo, footer social links, footer tagline)
+- Rocket launch animation with stage separation, flame pulse, and Live Activity Log (feature flag evaluation events stream in after 8.5s)
+- Architecture diagram section with component boxes, colored directional arrows, and infrastructure band
+- Tech Stack section with logo grid (Java, Spring Boot, PostgreSQL, Redis, Docker, Kubernetes, GitHub Actions, React)
+- Removed `GET /` from `HelloController` — landing page now owns the root URL
+- Whitelisted `/` and `/index.html` in `ApiKeyFilter` so page is publicly accessible
+- Logo images currently from Stitch CDN — will replace with stable CDN links before Day 28 Railway deploy
+
+---
+
 ## Day 1 — Project Bootstrap
 **Commit:** `e9a3d7b`
 - Created Spring Boot project
