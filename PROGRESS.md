@@ -3,7 +3,7 @@
 ---
 
 ## Day 22 — React + Vite + Tailwind Frontend Scaffold
-**Commit:** *(pending)*
+**Commit:** `204c15e`
 - Scaffolded `frontend/` with Vite + React template
 - Installed and configured Tailwind CSS v4 via `@tailwindcss/vite` plugin (no config file needed)
 - Configured Vite proxy: `/api` → `http://localhost:8080` to avoid CORS in development
