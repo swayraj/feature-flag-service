@@ -2,6 +2,17 @@
 
 ---
 
+## Day 22 — React + Vite + Tailwind Frontend Scaffold
+**Commit:** *(pending)*
+- Scaffolded `frontend/` with Vite + React template
+- Installed and configured Tailwind CSS v4 via `@tailwindcss/vite` plugin (no config file needed)
+- Configured Vite proxy: `/api` → `http://localhost:8080` to avoid CORS in development
+- Built `FlagList` + `FlagCard` components — fetches `GET /api/flags` with `X-API-Key` header
+- Flag cards display name, enabled/disabled badge (cyan vs gray), and rollout percentage
+- Local dev workflow: `docker-compose up postgres redis` for dependencies, `./mvnw spring-boot:run` for backend, `npm run dev` for frontend on port 5173
+
+---
+
 ## Day 21 — Landing Page Polish
 **Commit:** `5515cab`
 - Fixed HTML structure: `<head>` was immediately closed on line 1 with a ` ```html ` Markdown artifact left from Stitch generation; all meta/link/script tags now properly inside `<head>`, `<body>` opens before visible content

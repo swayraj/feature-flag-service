@@ -56,7 +56,7 @@ Everything served from one app at one URL — no separate frontend server needed
 
 | Day | Goal | Status |
 |-----|------|--------|
-| Day 22 | React + Vite + Tailwind scaffold, flag list view with enabled/disabled badges | ⬜ |
+| Day 22 | React + Vite + Tailwind scaffold, flag list view with enabled/disabled badges | ✅ Done |
 | Day 23 | Create/edit/delete flags — slide-in form, toggle switch | ⬜ |
 | Day 24 | Rollout % slider, scheduled rollout form | ⬜ |
 | Day 25 | Webhook management panel | ⬜ |
