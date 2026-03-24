@@ -3,7 +3,7 @@
 ---
 
 ## Day 21 — Landing Page Polish
-**Commit:** *(pending)*
+**Commit:** `5515cab`
 - Fixed HTML structure: `<head>` was immediately closed on line 1 with a ` ```html ` Markdown artifact left from Stitch generation; all meta/link/script tags now properly inside `<head>`, `<body>` opens before visible content
 - Replaced all 11 Stitch CDN logo images (`lh3.googleusercontent.com/aida/`) with stable jsDelivr devicons SVGs (Java, Spring, PostgreSQL, Redis, Docker, Kubernetes, GitHub Actions, React)
 - Grid background opacity: 0.05 → 0.09 for subtle texture
