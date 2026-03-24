@@ -54,14 +54,18 @@ backend API, infrastructure, DevOps, and a frontend admin UI over 30 days.
 Built as a `frontend/` folder, Vite output copied into Spring Boot's `static/` at Docker build time.
 Everything served from one app at one URL — no separate frontend server needed.
 
+**Frontend goal: tell a story, not just show a CRUD UI.**
+Every action has a visible consequence with an explanation. A non-technical person should understand
+what feature flags are, why Redis matters, and how rollout targeting works — just by using the demo.
+
 | Day | Goal | Status |
 |-----|------|--------|
 | Day 22 | React + Vite + Tailwind scaffold, flag list view with enabled/disabled badges | ✅ Done |
-| Day 23 | Create/edit/delete flags — slide-in form, toggle switch | ⬜ |
-| Day 24 | Rollout % slider, scheduled rollout form | ⬜ |
-| Day 25 | Webhook management panel | ⬜ |
-| Day 26 | Real-time live activity feed via WebSocket | ⬜ |
-| Day 27 | Analytics dashboard — flag evaluation stats, delivery success rates | ⬜ |
+| Day 23 | Flag manager (create/edit/delete/toggle) + **Evaluation Simulator** — type any userId, see ENABLED/DISABLED, which bucket (0–99), why (% rule or target list), cache hit vs DB fetch, latency | ⬜ |
+| Day 24 | **Live Evaluation Feed** (real WebSocket stream) + rollout visualizer — 100 user dots recolor as you drag the rollout % slider | ⬜ |
+| Day 25 | **The Story Panel** — Redis hit/miss ratio, evaluation counts per flag, recent decisions timeline. Makes the infrastructure visible and meaningful | ⬜ |
+| Day 26 | Webhook panel + delivery log — register endpoints, see per-delivery success/fail, payload preview | ⬜ |
+| Day 27 | Polish + cohesion — unified nav, loading states, empty states, error handling, make it feel like one product | ⬜ |
 | Day 28 | Deploy to Railway — public live URL, CI/CD auto-deploy on push | ⬜ |
 | Day 29 | Final documentation — README, architecture diagram | ⬜ |
 | Day 30 | Demo video + project wrap-up | ⬜ |
