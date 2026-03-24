@@ -44,7 +44,7 @@ backend API, infrastructure, DevOps, and a frontend admin UI over 30 days.
 | Day 18 | Rate limiting + security hardening (API keys or JWT) | ✅ Done |
 | Day 19 | Performance testing — load test with k6 or JMeter | ✅ Done |
 | Day 20 | Canary landing page — rocket animation, architecture diagram, tech stack, footer | ✅ Done |
-| Day 21 | Buffer / catch-up day | ⬜ |
+| Day 21 | Buffer / catch-up day | ✅ Done |
 
 ---
 

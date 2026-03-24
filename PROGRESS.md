@@ -2,6 +2,19 @@
 
 ---
 
+## Day 21 — Landing Page Polish
+**Commit:** *(pending)*
+- Fixed HTML structure: `<head>` was immediately closed on line 1 with a ` ```html ` Markdown artifact left from Stitch generation; all meta/link/script tags now properly inside `<head>`, `<body>` opens before visible content
+- Replaced all 11 Stitch CDN logo images (`lh3.googleusercontent.com/aida/`) with stable jsDelivr devicons SVGs (Java, Spring, PostgreSQL, Redis, Docker, Kubernetes, GitHub Actions, React)
+- Grid background opacity: 0.05 → 0.09 for subtle texture
+- Tech stack icons: `grayscale` → `opacity-50` on default, `opacity-100` on hover (icons now recognizable at a glance)
+- Live Activity Log pulse dot changed to amber for warm accent contrast against all-cyan palette
+- "View GitHub" button: ghost box → outlined cyan button (`border-primary/50`, `text-primary`, cyan fill on hover)
+- Added 45 twinkling stars inside rocket animation window (random sizes, positions, delays; ~20% cyan-tinted); fade out at 8.5s when log takes over
+- Added realistic planet (top-right corner, partially cropped): fractal noise surface texture via SVG `feTurbulence` filter, Great Dark Spot storm, smaller vortex, wispy cloud streaks, polar ice cap, atmospheric rim glow; fades out at 8.5s
+
+---
+
 ## Day 20 — Canary Landing Page
 **Commit:** `c15aeae`
 - Built landing page served at `/` from `src/main/resources/static/index.html`

@@ -1,4 +1,5 @@
-<html class="dark" lang="en"><head></head><body class="bg-surface text-on-surface antialiased overflow-x-hidden">```html
+<html class="dark" lang="en">
+<head>
 
 
 
@@ -83,7 +84,7 @@
         .font-headline { font-family: 'Space Grotesk', sans-serif; }
         .font-mono { font-family: 'JetBrains Mono', monospace; }
         
-        .grid-bg { background-image: radial-gradient(circle at 1px 1px, #48474a 1px, transparent 0); background-size: 24px 24px; opacity: 0.05; }
+        .grid-bg { background-image: radial-gradient(circle at 1px 1px, #48474a 1px, transparent 0); background-size: 24px 24px; opacity: 0.09; }
         .gradient-text { background: linear-gradient(135deg, #81ecff 0%, #00d4ec 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 
         /* Rocket Movement */
@@ -131,6 +132,31 @@
         }
         .log-entry-animate { animation: log-entry-in 0.3s ease-out forwards; }
 
+        /* Planet */
+        @keyframes planet-bands-drift {
+            from { background-position: 0% 0%; }
+            to { background-position: 200% 0%; }
+        }
+        #planet { transition: opacity 0.8s ease; }
+        #planet-bands {
+            background: repeating-linear-gradient(
+                to bottom,
+                transparent 0px,
+                rgba(255,255,255,0.014) 5px,
+                rgba(0,20,60,0.06) 10px,
+                transparent 18px
+            );
+            background-size: 200% 100%;
+            animation: planet-bands-drift 35s linear infinite;
+        }
+
+        /* Stars */
+        @keyframes star-twinkle {
+            0%, 100% { opacity: 0; transform: scale(0.3); }
+            50% { opacity: 1; transform: scale(1); }
+        }
+        #stars-container { transition: opacity 0.8s ease; }
+
         .flame-pulse { animation: flame-pulse 0.15s infinite alternate; }
         @keyframes flame-pulse {
             from { height: 16px; opacity: 0.8; filter: blur(1px); }
@@ -176,6 +202,8 @@
             transform: translateX(-50%);
         }
     </style>
+</head>
+<body class="bg-surface text-on-surface antialiased overflow-x-hidden">
 <!-- Grid Backdrop -->
 <div class="fixed inset-0 grid-bg pointer-events-none z-0"></div>
 <!-- TopNavBar -->
@@ -209,18 +237,62 @@
 <a href="/app" class="bg-gradient-to-br from-primary to-primary-dim text-on-primary-container px-8 py-4 font-bold rounded-xl flex items-center gap-2 group hover:shadow-[0_0_30px_rgba(129,236,255,0.3)] transition-all">
                     Explore Demo <span class="material-symbols-outlined transition-transform group-hover:translate-x-1">arrow_forward</span>
 </a>
-<a href="https://github.com/swayraj/feature-flag-service" target="_blank" class="bg-surface-container-high border border-outline-variant/20 text-on-surface px-8 py-4 font-bold rounded-xl hover:bg-surface-bright transition-colors">
+<a href="https://github.com/swayraj/feature-flag-service" target="_blank" class="bg-transparent border border-primary/50 text-primary px-8 py-4 font-bold rounded-xl hover:bg-primary/10 hover:border-primary transition-all">
                     View GitHub
                 </a>
 </div>
 </div>
 <!-- Refined Animation Container -->
 <div class="relative w-full max-w-[400px] h-[500px] mx-auto md:ml-auto border border-outline-variant/5 bg-surface-container-lowest/20 rounded-2xl overflow-hidden flex items-end justify-center pb-12">
+<!-- Stars -->
+<div id="stars-container" class="absolute inset-0 z-10 pointer-events-none"></div>
+<!-- SVG filter: fractal noise for planet surface texture -->
+<svg width="0" height="0" style="position:absolute;overflow:hidden;">
+  <defs>
+    <filter id="planet-noise" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.42 0.18" numOctaves="6" seed="11" result="noise"/>
+      <feColorMatrix type="matrix" in="noise"
+        values="0 0 0 0 0.02
+                0 0 0 0 0.06
+                0 0 0 0 0.22
+                0 0 0 0.55 0" result="tinted"/>
+      <feComposite in="tinted" in2="SourceGraphic" operator="in"/>
+    </filter>
+  </defs>
+</svg>
+<!-- Planet -->
+<div id="planet" class="absolute pointer-events-none" style="top:-45px;right:-55px;z-index:11;">
+  <div style="width:180px;height:180px;border-radius:50%;position:relative;overflow:hidden;">
+    <!-- Base sphere shading -->
+    <div id="planet-sphere" style="position:absolute;inset:0;border-radius:50%;
+      background:
+        radial-gradient(circle at 38% 34%, rgba(190,235,255,0.18) 0%, transparent 42%),
+        radial-gradient(circle at 38% 34%, #72c6f0 0%, #3490d4 18%, #1a65b8 38%, #0e449a 58%, #061e6a 78%, #030c3a 100%);
+      box-shadow:inset -35px -25px 70px rgba(0,0,0,0.72), inset 12px 10px 35px rgba(130,210,255,0.07), 0 0 50px rgba(100,190,255,0.22), 0 0 100px rgba(80,160,255,0.07);">
+    </div>
+    <!-- Fractal noise texture overlay — this is what makes it look bumpy and real -->
+    <div style="position:absolute;inset:0;border-radius:50%;filter:url(#planet-noise);opacity:0.75;"></div>
+    <!-- Drifting cloud bands -->
+    <div id="planet-bands" style="position:absolute;inset:0;border-radius:50%;"></div>
+    <!-- Great Dark Spot (large storm) -->
+    <div style="position:absolute;top:50%;left:52%;width:28px;height:17px;border-radius:50%;background:radial-gradient(ellipse at 40% 40%, rgba(4,18,60,0.75) 0%, rgba(8,28,80,0.3) 60%, transparent 100%);transform:rotate(-12deg);"></div>
+    <!-- Smaller storm vortex -->
+    <div style="position:absolute;top:32%;left:38%;width:14px;height:9px;border-radius:50%;background:radial-gradient(ellipse at 40% 40%, rgba(6,20,70,0.6) 0%, transparent 100%);transform:rotate(6deg);"></div>
+    <!-- Wispy cloud streak 1 -->
+    <div style="position:absolute;top:44%;left:10%;width:55%;height:5px;border-radius:999px;background:linear-gradient(to right, transparent, rgba(160,220,255,0.07), rgba(180,230,255,0.11), transparent);transform:rotate(-3deg);"></div>
+    <!-- Wispy cloud streak 2 -->
+    <div style="position:absolute;top:62%;left:5%;width:50%;height:4px;border-radius:999px;background:linear-gradient(to right, transparent, rgba(140,210,255,0.08), transparent);transform:rotate(-1deg);"></div>
+    <!-- Polar ice cap -->
+    <div style="position:absolute;top:3%;left:26%;width:48%;height:24%;border-radius:50%;background:radial-gradient(ellipse, rgba(220,245,255,0.14) 0%, transparent 70%);transform:rotate(-10deg);"></div>
+  </div>
+  <!-- Atmospheric rim glow -->
+  <div style="position:absolute;inset:-6px;border-radius:50%;box-shadow:0 0 20px 5px rgba(100,190,255,0.18);pointer-events:none;"></div>
+</div>
 <!-- Live Activity Log -->
 <div class="absolute top-6 left-6 right-6 z-30 log-window-animation overflow-hidden max-h-[420px]">
 <div class="bg-black/80 backdrop-blur-xl border border-primary/20 rounded-lg p-5 font-mono text-[11px] leading-relaxed text-primary/90 h-[400px] flex flex-col shadow-2xl">
 <div class="flex items-center gap-2 mb-3 border-b border-primary/10 pb-2">
-<div class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></div>
+<div class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></div>
 <span class="uppercase tracking-widest font-bold">Live Activity Log</span>
 </div>
 <div class="space-y-2.5 flex-grow overflow-y-auto custom-scrollbar pr-2 scroll-smooth" id="log-container">
@@ -473,7 +545,7 @@
 <div class="flex flex-wrap justify-center gap-20 items-center">
 <div class="flex items-center gap-4 group">
 <div class="w-12 h-12 bg-white/5 p-2 rounded-xl flex items-center justify-center border border-outline-variant/20 group-hover:border-primary/50 transition-all">
-<img alt="Docker" class="w-full h-full object-contain grayscale group-hover:grayscale-0 transition-all" src="https://lh3.googleusercontent.com/aida/ADBb0uhF5h2L8jaBAfyY7S1WD5xAD46i68KM-hc-xuArf2vw_oCylf_nIe97gR-GBns8rNM_X03iRc0dl2K6C47QsD0i_xOJ59ym4bWUR-s3J7r4dqdXEByVZ_mypprnzVLlDs9kvai4lpmg8cGQhktYNtU1X0myiev1QurYS0mfyPaP6zSfL6WZrb9sDGYISnZDq7hR0eX3RXZeiWE4K_hoUmyqogf6a7FCufH5F1ycoi01kn-C6XVBoLpxIGNMbbyx44SNPiPkVbsTJw"/>
+<img alt="Docker" class="w-full h-full object-contain opacity-50 group-hover:opacity-100 transition-all" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/docker/docker-original.svg"/>
 </div>
 <div>
 <div class="text-sm font-bold tracking-tight">Docker</div>
@@ -482,7 +554,7 @@
 </div>
 <div class="flex items-center gap-4 group">
 <div class="w-12 h-12 bg-white/5 p-2 rounded-xl flex items-center justify-center border border-outline-variant/20 group-hover:border-indigo-500/50 transition-all">
-<img alt="Kubernetes" class="w-full h-full object-contain grayscale group-hover:grayscale-0 transition-all" src="https://lh3.googleusercontent.com/aida/ADBb0ujawB2ksWT96nMQfl8CBoBP8CXVfWeB1JEWfcsyqFuH3gjwb0YcJLWtyhmY1srU3ng4TqGsJP_WVSTCrxeQvVpidB2nNdN249-5T2l1N7MILae6tcqvBiKXT1NbPCbbxFaU0MBdPcDaZA-uV_fR3FLvGbEeOBDIX_Fo1uAKvPksBoWIgAeElng4146OlEbvh6OjhNYWTdXGMFFDqog8DqopxBRucOIK6IXuqK-E6Mg_-TMipUTQbwBVImjB283RFQbeQFRbboum"/>
+<img alt="Kubernetes" class="w-full h-full object-contain opacity-50 group-hover:opacity-100 transition-all" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/kubernetes/kubernetes-plain.svg"/>
 </div>
 <div>
 <div class="text-sm font-bold tracking-tight">Kubernetes</div>
@@ -491,7 +563,7 @@
 </div>
 <div class="flex items-center gap-4 group">
 <div class="w-12 h-12 bg-white/5 p-2 rounded-xl flex items-center justify-center border border-outline-variant/20 group-hover:border-white/50 transition-all">
-<img alt="CI/CD" class="w-full h-full object-contain grayscale group-hover:grayscale-0 transition-all" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBXzIhTi4H0IDG5wsp4-L7pPlKzgV3PSaZjguSWL4POFAjwYYx4wclQ1ZMhQUlJ-RWsy3hgHgVppwyUd8XM9rVaOvvl2Fm_ia6sK1Oec2vGN4nRT0xNGQlba2s9_PNUlcdsvx6Dp2eMxfKcxPNsdSneOQ0eXkXMPdfChXh4XyMMWfFRKknPO45eRN-VrlQuvShAIh8xXi70mwF0hjp0HDLY5rmjcBarmxwbSyS4KF1HWkjgsQmjLSQ3AKi1xR-4HV82qwdwhl-hnxA"/>
+<img alt="CI/CD" class="w-full h-full object-contain opacity-50 group-hover:opacity-100 transition-all" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/githubactions/githubactions-original.svg"/>
 </div>
 <div>
 <div class="text-sm font-bold tracking-tight">CI/CD Pipeline</div>
@@ -510,56 +582,56 @@
 <!-- Java -->
 <div class="flex flex-col items-center gap-4 group cursor-default">
 <div class="w-20 h-20 rounded-full border border-outline-variant/20 flex items-center justify-center overflow-hidden transition-all duration-300 group-hover:border-primary/50 group-hover:shadow-[0_0_20px_rgba(129,236,255,0.2)] group-hover:-translate-y-1 p-2 bg-transparent">
-<img alt="Java" class="w-full h-full object-contain grayscale group-hover:grayscale-0 transition-all" src="https://lh3.googleusercontent.com/aida/ADBb0ugVfUXDc6zdjbbjKio6agl-05vJ3D5CtvQSBj1Gq70vVZbc7O9lELZ0PewraV2jf4Gy4YAQN_0jcm-D0siPj31bILGcOr4o3VX79nt4EU0fcVrfG7zdib7wT-xhEmC36f1Pvqe_Y6wS2S4VLdGbe3ki7vbm-gPIPFlJHCVNinf8hAts5ci3T1Q_TJGLWaUk25Ub2_Vx8pzuSQ0LEDfOb4Y51TpCOIcyOyMon4VPUN7IMeuQNOOMoNnGJ3usfetT7dbwdDE0W-q4rA"/>
+<img alt="Java" class="w-full h-full object-contain opacity-50 group-hover:opacity-100 transition-all" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/java/java-original.svg"/>
 </div>
 <span class="font-mono text-[10px] uppercase tracking-widest text-on-surface-variant group-hover:text-primary transition-colors font-bold">Java 21</span>
 </div>
 <!-- Spring Boot -->
 <div class="flex flex-col items-center gap-4 group cursor-default">
 <div class="w-20 h-20 rounded-full border border-outline-variant/20 flex items-center justify-center overflow-hidden transition-all duration-300 group-hover:border-primary/50 group-hover:shadow-[0_0_20px_rgba(129,236,255,0.2)] group-hover:-translate-y-1 p-2 bg-transparent">
-<img alt="Spring Boot" class="w-full h-full object-contain grayscale group-hover:grayscale-0 transition-all" src="https://lh3.googleusercontent.com/aida/ADBb0uh3iq2dROdgH1bj2FmFRY5kVcO1CA2rc9kIsRobcwpJ4AVo-LC8QzPwzzztG90MpTuefzLS9M0jHocJGQxuTeIjAoqsi3nCVQGqC3OVJvd5AAP2HpG6CKA1kmr1ZpToDHQQWaA19lQ7CjU1mTrYr7TrDQ0DEYqd5008lx_pUnaSWu5JoKbtd_IpIEE7Z53LbgM_C8Vsh7xkzaoj_RI9ISL0Lx6NzikpRagArpyByV-qHu-U-yU9ZdCHAyiCAu4Kj2xc0Z1ax8jmOw"/>
+<img alt="Spring Boot" class="w-full h-full object-contain opacity-50 group-hover:opacity-100 transition-all" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/spring/spring-original.svg"/>
 </div>
 <span class="font-mono text-[10px] uppercase tracking-widest text-on-surface-variant group-hover:text-primary transition-colors font-bold">Spring Boot</span>
 </div>
 <!-- PostgreSQL -->
 <div class="flex flex-col items-center gap-4 group cursor-default">
 <div class="w-20 h-20 rounded-full border border-outline-variant/20 flex items-center justify-center overflow-hidden transition-all duration-300 group-hover:border-primary/50 group-hover:shadow-[0_0_20px_rgba(129,236,255,0.2)] group-hover:-translate-y-1 p-2 bg-transparent">
-<img alt="PostgreSQL" class="w-full h-full object-contain grayscale group-hover:grayscale-0 transition-all" src="https://lh3.googleusercontent.com/aida/ADBb0ugh-g1aJ-n6JaEZs5Qt2j8TulV3Tz4013-VZt8p1QsXhMkxQ77zZxi0OiZxwwsyJSk9wf5dV1VJ7tKdyuDQncgJuVftNvZRppNTlMAgr40otdE9lAvIE5oNnSJPi-570lLEotkG8oxmzmDiUMWrc4tZELV4kcdn4XcP9ZOHIhKFdafg-fSibB11oDOfObisYTLMQpYNZ7Kv64JoRO1Y_I69dn5elr0lHrjCUpa-FtPQ753vVwa0J9FUhlLJY68xIxlcu92Pw7b0VQ"/>
+<img alt="PostgreSQL" class="w-full h-full object-contain opacity-50 group-hover:opacity-100 transition-all" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/postgresql/postgresql-original.svg"/>
 </div>
 <span class="font-mono text-[10px] uppercase tracking-widest text-on-surface-variant group-hover:text-primary transition-colors font-bold">PostgreSQL</span>
 </div>
 <!-- Redis -->
 <div class="flex flex-col items-center gap-4 group cursor-default">
 <div class="w-20 h-20 rounded-full border border-outline-variant/20 flex items-center justify-center overflow-hidden transition-all duration-300 group-hover:border-primary/50 group-hover:shadow-[0_0_20px_rgba(129,236,255,0.2)] group-hover:-translate-y-1 p-2 bg-transparent">
-<img alt="Redis" class="w-full h-full object-contain grayscale group-hover:grayscale-0 transition-all" src="https://lh3.googleusercontent.com/aida/ADBb0uiCN-4WX5T2PMgP1DEVydA7yTZ1mCm64cmplIMgFs-FVAWSoUSB_b4C4Mdxa6g7Cr5ZsIOIGvWyfO_TYOtl2CoqJ2uRVKANFjHWO8CizJOq4QIKsYZHbYHWxudcVK7qvnEuKM6E0p9icuBfuGJOBZTOkoyqyi9kJ2ze_VdWHyxHxi-nmJ4zXQsXk2cQAomTIIpOPJA3Ji-WMuoKA3prZyCjy4gI7MqCJ9UcGAF9FIsySF6vH0AaB7mVXWA4PlHk9TA6YCvduHMsxA"/>
+<img alt="Redis" class="w-full h-full object-contain opacity-50 group-hover:opacity-100 transition-all" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/redis/redis-original.svg"/>
 </div>
 <span class="font-mono text-[10px] uppercase tracking-widest text-on-surface-variant group-hover:text-primary transition-colors font-bold">Redis</span>
 </div>
 <!-- Docker -->
 <div class="flex flex-col items-center gap-4 group cursor-default">
 <div class="w-20 h-20 rounded-full border border-outline-variant/20 flex items-center justify-center overflow-hidden transition-all duration-300 group-hover:border-primary/50 group-hover:shadow-[0_0_20px_rgba(129,236,255,0.2)] group-hover:-translate-y-1 p-2 bg-transparent">
-<img alt="Docker" class="w-full h-full object-contain grayscale group-hover:grayscale-0 transition-all" src="https://lh3.googleusercontent.com/aida/ADBb0uhF5h2L8jaBAfyY7S1WD5xAD46i68KM-hc-xuArf2vw_oCylf_nIe97gR-GBns8rNM_X03iRc0dl2K6C47QsD0i_xOJ59ym4bWUR-s3J7r4dqdXEByVZ_mypprnzVLlDs9kvai4lpmg8cGQhktYNtU1X0myiev1QurYS0mfyPaP6zSfL6WZrb9sDGYISnZDq7hR0eX3RXZeiWE4K_hoUmyqogf6a7FCufH5F1ycoi01kn-C6XVBoLpxIGNMbbyx44SNPiPkVbsTJw"/>
+<img alt="Docker" class="w-full h-full object-contain opacity-50 group-hover:opacity-100 transition-all" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/docker/docker-original.svg"/>
 </div>
 <span class="font-mono text-[10px] uppercase tracking-widest text-on-surface-variant group-hover:text-primary transition-colors font-bold">Docker</span>
 </div>
 <!-- Kubernetes -->
 <div class="flex flex-col items-center gap-4 group cursor-default">
 <div class="w-20 h-20 rounded-full border border-outline-variant/20 flex items-center justify-center overflow-hidden transition-all duration-300 group-hover:border-primary/50 group-hover:shadow-[0_0_20px_rgba(129,236,255,0.2)] group-hover:-translate-y-1 p-2 bg-transparent">
-<img alt="Kubernetes" class="w-full h-full object-contain grayscale group-hover:grayscale-0 transition-all" src="https://lh3.googleusercontent.com/aida/ADBb0ujawB2ksWT96nMQfl8CBoBP8CXVfWeB1JEWfcsyqFuH3gjwb0YcJLWtyhmY1srU3ng4TqGsJP_WVSTCrxeQvVpidB2nNdN249-5T2l1N7MILae6tcqvBiKXT1NbPCbbxFaU0MBdPcDaZA-uV_fR3FLvGbEeOBDIX_Fo1uAKvPksBoWIgAeElng4146OlEbvh6OjhNYWTdXGMFFDqog8DqopxBRucOIK6IXuqK-E6Mg_-TMipUTQbwBVImjB283RFQbeQFRbboum"/>
+<img alt="Kubernetes" class="w-full h-full object-contain opacity-50 group-hover:opacity-100 transition-all" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/kubernetes/kubernetes-plain.svg"/>
 </div>
 <span class="font-mono text-[10px] uppercase tracking-widest text-on-surface-variant group-hover:text-primary transition-colors font-bold">Kubernetes</span>
 </div>
 <!-- GitHub Actions -->
 <div class="flex flex-col items-center gap-4 group cursor-default">
 <div class="w-20 h-20 rounded-full border border-outline-variant/20 flex items-center justify-center overflow-hidden transition-all duration-300 group-hover:border-primary/50 group-hover:shadow-[0_0_20px_rgba(129,236,255,0.2)] group-hover:-translate-y-1 p-2 bg-transparent">
-<img alt="GitHub Actions" class="w-full h-full object-contain grayscale group-hover:grayscale-0 transition-all" src="https://lh3.googleusercontent.com/aida/ADBb0uiUo99-h1YqHw_SNlGzU5bNz5tzdGmDPzcs_H4W595qEM5LYkFCC6XLPI2RihvyRyof1Mh33CuXM4p0kZe2VikqXYp6WCoBvuaSaGMjfiCla7J5yMf7cIoSopZCPRqYvfkpHeox2uDRvcbnakp1fyzFuoeb6gORVzSXQCufFZENEE4VFEBwNph2Jl85BskMwF-tahk9m1T0xmfzw7gJn4vqUlU-50kG3IqL0_iwo00f-8g7OlCJWmfrqQz_TIinb82omVjP4PGnlQ"/>
+<img alt="GitHub Actions" class="w-full h-full object-contain opacity-50 group-hover:opacity-100 transition-all" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/githubactions/githubactions-original.svg"/>
 </div>
 <span class="font-mono text-[10px] uppercase tracking-widest text-on-surface-variant group-hover:text-primary transition-colors font-bold">GitHub Actions</span>
 </div>
 <!-- React -->
 <div class="flex flex-col items-center gap-4 group cursor-default">
 <div class="w-20 h-20 rounded-full border border-outline-variant/20 flex items-center justify-center overflow-hidden transition-all duration-300 group-hover:border-primary/50 group-hover:shadow-[0_0_20px_rgba(129,236,255,0.2)] group-hover:-translate-y-1 p-2 bg-transparent">
-<img alt="React" class="w-full h-full object-contain grayscale group-hover:grayscale-0 transition-all" src="https://lh3.googleusercontent.com/aida/ADBb0ugfg-uIZB6OThuix8Vtr3uDvlrrTXcrxhpJaQRzlEdiYRFsdLZGd4GRYQXN22QSujIgdl3Xer7A15Daod2MuMeowyvzIZZvil4N9nhyDJq4QjryAaGYyRerBNuvETGbsVlBbWRKyJMlwOtjKK-x_KNnfr0L8v27_56odSnhBkHqedoYwxdh2_ukOYIy2GEPBY5J_7yK3XyzM7EU1MYiPa68Y5Sz1VuwTsd1MXydwN9ciWaHzDkgjYqHMZS6NrQXWIuOEpD8dccolw"/>
+<img alt="React" class="w-full h-full object-contain opacity-50 group-hover:opacity-100 transition-all" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg"/>
 </div>
 <span class="font-mono text-[10px] uppercase tracking-widest text-on-surface-variant group-hover:text-primary transition-colors font-bold">React</span>
 </div>
@@ -584,6 +656,25 @@
 <div class="text-[#adaaad] font-bold">Ship fearlessly. Roll out with control.</div></div>
 </footer>
 <script>
+    // Stars
+    const starsContainer = document.getElementById('stars-container');
+    for (let i = 0; i < 45; i++) {
+        const star = document.createElement('div');
+        const size = (Math.random() * 2 + 1).toFixed(1);
+        const x = (Math.random() * 96 + 2).toFixed(1);
+        const y = (Math.random() * 96 + 2).toFixed(1);
+        const duration = (0.7 + Math.random() * 1.6).toFixed(2);
+        const delay = (Math.random() * 7.5).toFixed(2);
+        const brightness = Math.random() > 0.8 ? '#81ecff' : 'white';
+        star.style.cssText = `position:absolute;left:${x}%;top:${y}%;width:${size}px;height:${size}px;background:${brightness};border-radius:50%;animation:star-twinkle ${duration}s ${delay}s ease-in-out infinite;opacity:0;`;
+        starsContainer.appendChild(star);
+    }
+    const planet = document.getElementById('planet');
+    setTimeout(() => {
+        starsContainer.style.opacity = '0';
+        planet.style.opacity = '0';
+    }, 8500);
+
     const logContainer = document.getElementById('log-container');
     const logMessages = [
         { type: 'INFO', text: 'Evaluating flag: dark-mode -> enabled for user cohort', color: 'text-green-400' },
