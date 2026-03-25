@@ -3,7 +3,7 @@
 ---
 
 ## Day 25 — The Story Panel
-**Commit:** *(pending)*
+**Commit:** `f821c49`
 - Built `StoryPanel` component — shows total evaluations, Redis cache hit/miss ratio, DB fetch count, per-flag evaluation bar chart, and recent decisions timeline
 - Updated `EvaluationSimulator` to report each result up via `onEvaluated` callback
 - Cache hit detection uses identity tracking (same flagName+userId seen before = hit) rather than latency threshold — latency on localhost is unreliable due to constant HTTP overhead masking Redis benefit
