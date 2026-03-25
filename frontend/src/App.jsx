@@ -4,6 +4,7 @@ import EvaluationSimulator from './components/EvaluationSimulator'
 import LiveFeed from './components/LiveFeed'
 import RolloutVisualizer from './components/RolloutVisualizer'
 import StoryPanel from './components/StoryPanel'
+import WebhookPanel from './components/WebhookPanel'
 
 const API_HEADERS = {
   'Content-Type': 'application/json',
@@ -99,6 +100,7 @@ function App() {
         }} />
         <StoryPanel history={evalHistory} />
         <RolloutVisualizer flags={flags} />
+        <WebhookPanel />
         <LiveFeed />
       </main>
     </div>

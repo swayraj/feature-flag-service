@@ -2,6 +2,14 @@
 
 ---
 
+## Day 26 — Webhook Panel + Delivery Log
+**Commit:** *(pending)*
+- Built `WebhookPanel` component — register webhook URLs, list all webhooks with active/inactive status, toggle and delete
+- Delivery log per webhook — click "Delivery log" to see last 10 deliveries: event type, HTTP response code, SUCCESS/FAILED badge, attempt count, timestamp
+- Webhooks fire on every flag event (create/toggle/update/delete) via the existing async `FlagEventService`
+
+---
+
 ## Day 25 — The Story Panel
 **Commit:** `f821c49`
 - Built `StoryPanel` component — shows total evaluations, Redis cache hit/miss ratio, DB fetch count, per-flag evaluation bar chart, and recent decisions timeline
