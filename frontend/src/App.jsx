@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import FlagList from './components/FlagList'
 import EvaluationSimulator from './components/EvaluationSimulator'
+import LiveFeed from './components/LiveFeed'
+import RolloutVisualizer from './components/RolloutVisualizer'
 
 const API_HEADERS = {
   'Content-Type': 'application/json',
@@ -87,6 +89,8 @@ function App() {
       <main className="px-6 py-8">
         <FlagList refreshKey={refreshKey} onFlagsLoaded={setFlags} />
         <EvaluationSimulator flags={flags} />
+        <RolloutVisualizer flags={flags} />
+        <LiveFeed />
       </main>
     </div>
   )

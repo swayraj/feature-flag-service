@@ -32,7 +32,8 @@ public class ApiKeyFilter extends OncePerRequestFilter {
 
         String path = request.getRequestURI();
         if (path.startsWith("/swagger-ui") || path.startsWith("/v3/api-docs")
-                || path.equals("/") || path.equals("/index.html") || path.equals("/health")) {
+                || path.equals("/") || path.equals("/index.html") || path.equals("/health")
+                || path.startsWith("/ws")) {
             filterChain.doFilter(request, response);
             return;
         }

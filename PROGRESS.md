@@ -2,6 +2,14 @@
 
 ---
 
+## Day 24 — Live Evaluation Feed + Rollout Visualizer
+**Commit:** *(pending)*
+- Built `LiveFeed` component — connects to backend WebSocket via STOMP + SockJS, shows real-time flag events (create/update/delete/toggle) as they happen, max 20 events, color-coded by event type
+- Built `RolloutVisualizer` component — 20×10 grid of 200 dots, each dot = a specific user, cyan = enabled, gray = disabled; slider lets you preview any rollout % without saving
+- Fixed WebSocket connection: whitelisted `/ws` in `ApiKeyFilter`, added SockJS proxy in Vite config, fixed `global is not defined` Vite/CommonJS issue by setting `global: 'globalThis'` in vite.config.js
+
+---
+
 ## Day 23 — Flag Manager + Evaluation Simulator
 **Commit:** `00d8b77`
 - Added toggle, edit rollout %, and delete actions to every flag card — each hits the real backend and re-fetches the grid
