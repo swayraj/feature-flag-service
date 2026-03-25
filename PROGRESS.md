@@ -3,7 +3,7 @@
 ---
 
 ## Day 23 — Flag Manager + Evaluation Simulator
-**Commit:** *(pending)*
+**Commit:** `00d8b77`
 - Added toggle, edit rollout %, and delete actions to every flag card — each hits the real backend and re-fetches the grid
 - Added "New Flag" form in the header — POST `/api/flags` with name + rollout %, new card appears immediately
 - Built `EvaluationSimulator` component — pick any flag, type any userId, see ENABLED/DISABLED + reason + latency in ms
