@@ -61,7 +61,7 @@ what feature flags are, why Redis matters, and how rollout targeting works — j
 | Day | Goal | Status |
 |-----|------|--------|
 | Day 22 | React + Vite + Tailwind scaffold, flag list view with enabled/disabled badges | ✅ Done |
-| Day 23 | Flag manager (create/edit/delete/toggle) + **Evaluation Simulator** — type any userId, see ENABLED/DISABLED, which bucket (0–99), why (% rule or target list), cache hit vs DB fetch, latency | ⬜ |
+| Day 23 | Flag manager (create/edit/delete/toggle) + **Evaluation Simulator** — type any userId, see ENABLED/DISABLED, which bucket (0–99), why (% rule or target list), cache hit vs DB fetch, latency | ✅ Done |
 | Day 24 | **Live Evaluation Feed** (real WebSocket stream) + rollout visualizer — 100 user dots recolor as you drag the rollout % slider | ⬜ |
 | Day 25 | **The Story Panel** — Redis hit/miss ratio, evaluation counts per flag, recent decisions timeline. Makes the infrastructure visible and meaningful | ⬜ |
 | Day 26 | Webhook panel + delivery log — register endpoints, see per-delivery success/fail, payload preview | ⬜ |

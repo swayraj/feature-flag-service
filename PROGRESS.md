@@ -2,6 +2,15 @@
 
 ---
 
+## Day 23 — Flag Manager + Evaluation Simulator
+**Commit:** *(pending)*
+- Added toggle, edit rollout %, and delete actions to every flag card — each hits the real backend and re-fetches the grid
+- Added "New Flag" form in the header — POST `/api/flags` with name + rollout %, new card appears immediately
+- Built `EvaluationSimulator` component — pick any flag, type any userId, see ENABLED/DISABLED + reason + latency in ms
+- Fixed Redis DevTools classloader bug: switched cache value serializer from `JdkSerializationRedisSerializer` to `GenericJackson2JsonRedisSerializer` — JDK serialization ties objects to a classloader so hot-reload broke re-evaluation; JSON has no such issue
+
+---
+
 ## Day 22 — React + Vite + Tailwind Frontend Scaffold
 **Commit:** `204c15e`
 - Scaffolded `frontend/` with Vite + React template
