@@ -5,7 +5,7 @@ const API_HEADERS = {
   'X-API-Key': 'test-key-123',
 }
 
-function EvaluationSimulator({ flags }) {
+function EvaluationSimulator({ flags, onEvaluated }) {
   const [userId, setUserId] = useState('')
   const [selectedFlag, setSelectedFlag] = useState('')
   const [result, setResult] = useState(null)
@@ -31,9 +31,12 @@ function EvaluationSimulator({ flags }) {
         const ms = Math.round(performance.now() - start)
         setLatency(ms)
         if (!res.ok) throw new Error(`HTTP ${res.status}`)
-        return res.json()
+        return res.json().then(data => ({ data, ms }))
       })
-      .then(data => setResult(data))
+      .then(({ data, ms }) => {
+        setResult(data)
+        if (onEvaluated) onEvaluated({ ...data, latency: ms, cacheHit: ms < 8 })
+      })
       .catch(err => setError(err.message))
       .finally(() => setBusy(false))
   }

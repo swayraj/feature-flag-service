@@ -2,6 +2,14 @@
 
 ---
 
+## Day 25 — The Story Panel
+**Commit:** *(pending)*
+- Built `StoryPanel` component — shows total evaluations, Redis cache hit/miss ratio, DB fetch count, per-flag evaluation bar chart, and recent decisions timeline
+- Updated `EvaluationSimulator` to report each result up via `onEvaluated` callback
+- Cache hit detection uses identity tracking (same flagName+userId seen before = hit) rather than latency threshold — latency on localhost is unreliable due to constant HTTP overhead masking Redis benefit
+
+---
+
 ## Day 24 — Live Evaluation Feed + Rollout Visualizer
 **Commit:** `80ded79`
 - Built `LiveFeed` component — connects to backend WebSocket via STOMP + SockJS, shows real-time flag events (create/update/delete/toggle) as they happen, max 20 events, color-coded by event type

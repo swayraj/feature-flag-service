@@ -3,6 +3,7 @@ import FlagList from './components/FlagList'
 import EvaluationSimulator from './components/EvaluationSimulator'
 import LiveFeed from './components/LiveFeed'
 import RolloutVisualizer from './components/RolloutVisualizer'
+import StoryPanel from './components/StoryPanel'
 
 const API_HEADERS = {
   'Content-Type': 'application/json',
@@ -16,6 +17,8 @@ function App() {
   const [busy, setBusy] = useState(false)
   const [refreshKey, setRefreshKey] = useState(0)
   const [flags, setFlags] = useState([])
+  const [evalHistory, setEvalHistory] = useState([])
+  const seenEvals = useState(() => new Set())[0]
 
   function createFlag(e) {
     e.preventDefault()
@@ -88,7 +91,13 @@ function App() {
 
       <main className="px-6 py-8">
         <FlagList refreshKey={refreshKey} onFlagsLoaded={setFlags} />
-        <EvaluationSimulator flags={flags} />
+        <EvaluationSimulator flags={flags} onEvaluated={e => {
+          const key = `${e.flagName}:${e.userId}`
+          const cacheHit = seenEvals.has(key)
+          seenEvals.add(key)
+          setEvalHistory(h => [{ ...e, cacheHit }, ...h].slice(0, 50))
+        }} />
+        <StoryPanel history={evalHistory} />
         <RolloutVisualizer flags={flags} />
         <LiveFeed />
       </main>
