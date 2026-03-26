@@ -1,5 +1,5 @@
 # Stage 1: Build frontend
-FROM node:20-alpine AS frontend-build
+FROM node:22-alpine AS frontend-build
 
 WORKDIR /frontend
 
@@ -7,6 +7,10 @@ COPY frontend/package*.json ./
 RUN npm install
 
 COPY frontend/ ./
+
+ARG VITE_API_KEY=test-key-123
+ENV VITE_API_KEY=${VITE_API_KEY}
+
 RUN npm run build
 
 # Stage 2: Build backend
