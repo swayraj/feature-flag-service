@@ -3,7 +3,7 @@
 ---
 
 ## Day 27 — Polish + Cohesion
-**Commit:** `TBD`
+**Commit:** `b57ed92`
 - Tabbed navigation — 5 tabs (Flags, Simulator, Live Feed, Story, Webhooks), replaces single scroll page
 - Fixed LiveFeed WebSocket disconnect bug — panels now always stay mounted, hidden with CSS instead of conditional render
 - API key cleanup — GET endpoints are now public (no key required); writes still protected; key moved from hardcoded source to `frontend/.env` (gitignored), read via `import.meta.env.VITE_API_KEY`
