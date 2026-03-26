@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 
 const API_HEADERS = {
   'Content-Type': 'application/json',
-  'X-API-Key': 'test-key-123',
+  'X-API-Key': import.meta.env.VITE_API_KEY,
 }
 
 function WebhookPanel() {

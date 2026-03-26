@@ -6,7 +6,7 @@ function StoryPanel({ history }) {
           The Story
         </h2>
         <p className="text-xs font-mono text-gray-600">
-          Use the Evaluation Simulator above to start building the story.
+          Use the Evaluation Simulator to start building the story.
         </p>
       </div>
     )

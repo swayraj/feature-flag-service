@@ -2,7 +2,7 @@ import { useState } from 'react'
 
 const API_HEADERS = {
   'Content-Type': 'application/json',
-  'X-API-Key': 'test-key-123',
+  'X-API-Key': import.meta.env.VITE_API_KEY,
 }
 
 const USER_IDS = Array.from({ length: 200 }, (_, i) => `user-${String(i + 1).padStart(3, '0')}`)

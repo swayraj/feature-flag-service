@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 
 const API_HEADERS = {
   'Content-Type': 'application/json',
-  'X-API-Key': 'test-key-123',
+  'X-API-Key': import.meta.env.VITE_API_KEY,
 }
 
 function FlagList({ refreshKey, onFlagsLoaded }) {
@@ -33,7 +33,7 @@ function FlagList({ refreshKey, onFlagsLoaded }) {
 
   if (loading) return <p className="text-gray-500 font-mono text-sm">Loading flags...</p>
   if (error) return <p className="text-red-400 font-mono text-sm">Error: {error}</p>
-  if (flags.length === 0) return <p className="text-gray-500 font-mono text-sm">No flags found.</p>
+  if (flags.length === 0) return <p className="text-gray-500 font-mono text-sm">No flags yet — create one above.</p>
 
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -46,8 +46,19 @@ function FlagList({ refreshKey, onFlagsLoaded }) {
 
 function FlagCard({ flag, onUpdate }) {
   const [editMode, setEditMode] = useState(false)
+  const [scheduleMode, setScheduleMode] = useState(false)
   const [newRollout, setNewRollout] = useState(flag.rolloutPercentage ?? 0)
   const [busy, setBusy] = useState(false)
+
+  // one-time schedule fields
+  const [schedulePercent, setSchedulePercent] = useState(100)
+  const [scheduleTime, setScheduleTime] = useState('')
+
+  // auto-rollout fields
+  const [autoStep, setAutoStep] = useState(10)
+  const [autoInterval, setAutoInterval] = useState(24)
+  const [scheduleMsg, setScheduleMsg] = useState(null)
+  const [scheduleErr, setScheduleErr] = useState(null)
 
   function toggle() {
     setBusy(true)
@@ -78,6 +89,39 @@ function FlagCard({ flag, onUpdate }) {
       .then(res => { if (!res.ok) throw new Error(`HTTP ${res.status}`); return res.json() })
       .then(() => { setEditMode(false); onUpdate() })
       .catch(err => alert(err.message))
+      .finally(() => setBusy(false))
+  }
+
+  function scheduleOneTime(e) {
+    e.preventDefault()
+    if (!scheduleTime) return
+    setScheduleMsg(null)
+    setScheduleErr(null)
+    setBusy(true)
+    fetch('/api/schedule/rollout', {
+      method: 'POST',
+      headers: API_HEADERS,
+      body: JSON.stringify({ flagId: flag.id, targetPercentage: Number(schedulePercent), scheduledTime: scheduleTime }),
+    })
+      .then(res => { if (!res.ok) throw new Error(`HTTP ${res.status}`); return res.json() })
+      .then(() => setScheduleMsg(`Scheduled: rollout to ${schedulePercent}% at ${scheduleTime}`))
+      .catch(err => setScheduleErr(err.message))
+      .finally(() => setBusy(false))
+  }
+
+  function enableAutoRollout(e) {
+    e.preventDefault()
+    setScheduleMsg(null)
+    setScheduleErr(null)
+    setBusy(true)
+    fetch('/api/schedule/auto-rollout', {
+      method: 'POST',
+      headers: API_HEADERS,
+      body: JSON.stringify({ flagId: flag.id, step: Number(autoStep), intervalHours: Number(autoInterval) }),
+    })
+      .then(res => { if (!res.ok) throw new Error(`HTTP ${res.status}`); return res.json() })
+      .then(() => setScheduleMsg(`Auto-rollout enabled: +${autoStep}% every ${autoInterval}h`))
+      .catch(err => setScheduleErr(err.message))
       .finally(() => setBusy(false))
   }
 
@@ -120,7 +164,7 @@ function FlagCard({ flag, onUpdate }) {
         </div>
       )}
 
-      <div className="flex gap-2 pt-1">
+      <div className="flex gap-2 pt-1 flex-wrap">
         <button onClick={toggle} disabled={busy}
           className="text-xs font-mono px-3 py-1.5 rounded-lg border border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10 disabled:opacity-40 transition-colors">
           {flag.enabled ? 'Disable' : 'Enable'}
@@ -129,11 +173,68 @@ function FlagCard({ flag, onUpdate }) {
           className="text-xs font-mono px-3 py-1.5 rounded-lg border border-gray-600 text-gray-400 hover:bg-gray-800 disabled:opacity-40 transition-colors">
           Edit %
         </button>
+        <button onClick={() => { setScheduleMode(v => !v); setScheduleMsg(null); setScheduleErr(null) }} disabled={busy}
+          className={`text-xs font-mono px-3 py-1.5 rounded-lg border transition-colors disabled:opacity-40 ${scheduleMode ? 'border-yellow-500/40 text-yellow-400 bg-yellow-500/10' : 'border-gray-600 text-gray-400 hover:bg-gray-800'}`}>
+          Schedule
+        </button>
         <button onClick={deleteFlag} disabled={busy}
           className="text-xs font-mono px-3 py-1.5 rounded-lg border border-red-500/30 text-red-400 hover:bg-red-500/10 disabled:opacity-40 transition-colors ml-auto">
           Delete
         </button>
       </div>
+
+      {scheduleMode && (
+        <div className="border-t border-gray-800 pt-3 flex flex-col gap-4">
+          {/* One-time rollout */}
+          <div>
+            <p className="text-[10px] font-mono text-gray-500 uppercase tracking-widest mb-2">One-time rollout</p>
+            <form onSubmit={scheduleOneTime} className="flex flex-wrap gap-2 items-end">
+              <div className="flex flex-col gap-1">
+                <label className="text-[10px] font-mono text-gray-600">Target %</label>
+                <input type="number" min="0" max="100" value={schedulePercent}
+                  onChange={e => setSchedulePercent(e.target.value)}
+                  className="w-16 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs font-mono text-gray-100 focus:outline-none focus:border-yellow-500" />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-[10px] font-mono text-gray-600">At time</label>
+                <input type="datetime-local" value={scheduleTime}
+                  onChange={e => setScheduleTime(e.target.value)}
+                  className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs font-mono text-gray-100 focus:outline-none focus:border-yellow-500" />
+              </div>
+              <button type="submit" disabled={busy || !scheduleTime}
+                className="text-xs font-mono px-3 py-1.5 rounded bg-yellow-600 hover:bg-yellow-500 text-white disabled:opacity-40">
+                Schedule
+              </button>
+            </form>
+          </div>
+
+          {/* Auto-rollout */}
+          <div>
+            <p className="text-[10px] font-mono text-gray-500 uppercase tracking-widest mb-2">Auto-rollout</p>
+            <form onSubmit={enableAutoRollout} className="flex flex-wrap gap-2 items-end">
+              <div className="flex flex-col gap-1">
+                <label className="text-[10px] font-mono text-gray-600">Step %</label>
+                <input type="number" min="1" max="100" value={autoStep}
+                  onChange={e => setAutoStep(e.target.value)}
+                  className="w-16 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs font-mono text-gray-100 focus:outline-none focus:border-yellow-500" />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-[10px] font-mono text-gray-600">Every (hours)</label>
+                <input type="number" min="1" value={autoInterval}
+                  onChange={e => setAutoInterval(e.target.value)}
+                  className="w-20 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs font-mono text-gray-100 focus:outline-none focus:border-yellow-500" />
+              </div>
+              <button type="submit" disabled={busy}
+                className="text-xs font-mono px-3 py-1.5 rounded bg-yellow-600 hover:bg-yellow-500 text-white disabled:opacity-40">
+                Enable
+              </button>
+            </form>
+          </div>
+
+          {scheduleMsg && <p className="text-[11px] font-mono text-green-400">{scheduleMsg}</p>}
+          {scheduleErr && <p className="text-[11px] font-mono text-red-400">Error: {scheduleErr}</p>}
+        </div>
+      )}
     </div>
   )
 }

@@ -8,10 +8,19 @@ import WebhookPanel from './components/WebhookPanel'
 
 const API_HEADERS = {
   'Content-Type': 'application/json',
-  'X-API-Key': 'test-key-123',
+  'X-API-Key': import.meta.env.VITE_API_KEY,
 }
 
+const TABS = [
+  { id: 'flags',     label: 'Flags' },
+  { id: 'simulator', label: 'Simulator' },
+  { id: 'live',      label: 'Live Feed' },
+  { id: 'story',     label: 'Story' },
+  { id: 'webhooks',  label: 'Webhooks' },
+]
+
 function App() {
+  const [activeTab, setActiveTab] = useState('flags')
   const [showForm, setShowForm] = useState(false)
   const [flagName, setFlagName] = useState('')
   const [rollout, setRollout] = useState(0)
@@ -47,21 +56,32 @@ function App() {
       .finally(() => setBusy(false))
   }
 
+  function handleEvaluated(e) {
+    const key = `${e.flagName}:${e.userId}`
+    const cacheHit = seenEvals.has(key)
+    seenEvals.add(key)
+    setEvalHistory(h => [{ ...e, cacheHit }, ...h].slice(0, 50))
+  }
+
   return (
     <div className="min-h-screen bg-gray-950 text-gray-100">
+      {/* Header */}
       <header className="border-b border-gray-800 px-6 py-4 flex items-center justify-between">
         <h1 className="text-xl font-bold tracking-tight text-cyan-400 font-mono">
           {'{ CANARY }'} — Flag Dashboard
         </h1>
-        <button
-          onClick={() => setShowForm(v => !v)}
-          className="text-xs font-mono px-4 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white transition-colors"
-        >
-          {showForm ? 'Cancel' : '+ New Flag'}
-        </button>
+        {activeTab === 'flags' && (
+          <button
+            onClick={() => setShowForm(v => !v)}
+            className="text-xs font-mono px-4 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white transition-colors"
+          >
+            {showForm ? 'Cancel' : '+ New Flag'}
+          </button>
+        )}
       </header>
 
-      {showForm && (
+      {/* New flag form */}
+      {activeTab === 'flags' && showForm && (
         <form onSubmit={createFlag} className="border-b border-gray-800 px-6 py-4 flex items-end gap-4 bg-gray-900/50">
           <div className="flex flex-col gap-1">
             <label className="text-xs text-gray-500 font-mono">Flag name</label>
@@ -90,18 +110,30 @@ function App() {
         </form>
       )}
 
+      {/* Tab bar */}
+      <nav className="border-b border-gray-800 px-6 flex gap-1">
+        {TABS.map(tab => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`px-4 py-3 text-sm font-mono transition-colors border-b-2 -mb-px ${
+              activeTab === tab.id
+                ? 'border-cyan-400 text-cyan-400'
+                : 'border-transparent text-gray-500 hover:text-gray-300'
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </nav>
+
+      {/* Tab content */}
       <main className="px-6 py-8">
-        <FlagList refreshKey={refreshKey} onFlagsLoaded={setFlags} />
-        <EvaluationSimulator flags={flags} onEvaluated={e => {
-          const key = `${e.flagName}:${e.userId}`
-          const cacheHit = seenEvals.has(key)
-          seenEvals.add(key)
-          setEvalHistory(h => [{ ...e, cacheHit }, ...h].slice(0, 50))
-        }} />
-        <StoryPanel history={evalHistory} />
-        <RolloutVisualizer flags={flags} />
-        <WebhookPanel />
-        <LiveFeed />
+        <div className={activeTab === 'flags'     ? '' : 'hidden'}><FlagList refreshKey={refreshKey} onFlagsLoaded={setFlags} /></div>
+        <div className={activeTab === 'simulator' ? '' : 'hidden'}><EvaluationSimulator flags={flags} onEvaluated={handleEvaluated} /><RolloutVisualizer flags={flags} /></div>
+        <div className={activeTab === 'live'      ? '' : 'hidden'}><LiveFeed /></div>
+        <div className={activeTab === 'story'     ? '' : 'hidden'}><StoryPanel history={evalHistory} /></div>
+        <div className={activeTab === 'webhooks'  ? '' : 'hidden'}><WebhookPanel /></div>
       </main>
     </div>
   )

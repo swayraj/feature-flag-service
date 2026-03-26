@@ -31,9 +31,12 @@ public class ApiKeyFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String path = request.getRequestURI();
+        String method = request.getMethod();
+
         if (path.startsWith("/swagger-ui") || path.startsWith("/v3/api-docs")
                 || path.equals("/") || path.equals("/index.html") || path.equals("/health")
-                || path.startsWith("/ws")) {
+                || path.startsWith("/ws")
+                || "GET".equalsIgnoreCase(method)) {
             filterChain.doFilter(request, response);
             return;
         }

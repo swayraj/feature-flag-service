@@ -2,6 +2,17 @@
 
 ---
 
+## Day 27 — Polish + Cohesion
+**Commit:** `TBD`
+- Tabbed navigation — 5 tabs (Flags, Simulator, Live Feed, Story, Webhooks), replaces single scroll page
+- Fixed LiveFeed WebSocket disconnect bug — panels now always stay mounted, hidden with CSS instead of conditional render
+- API key cleanup — GET endpoints are now public (no key required); writes still protected; key moved from hardcoded source to `frontend/.env` (gitignored), read via `import.meta.env.VITE_API_KEY`
+- Swagger Authorize button — added `SecurityScheme` to `OpenApiConfig` so Swagger UI shows the lock icon and includes the key on every request
+- Segmented evaluation — Simulator tab now has optional Country + Platform fields; automatically calls `/api/evaluate/segment` when attributes are provided
+- Scheduling UI — each flag card has a "Schedule" button that expands inline with one-time rollout (% + datetime) and auto-rollout (step % + interval hours) forms
+
+---
+
 ## Day 26 — Webhook Panel + Delivery Log
 **Commit:** `afea5ee`
 - Built `WebhookPanel` component — register webhook URLs, list all webhooks with active/inactive status, toggle and delete

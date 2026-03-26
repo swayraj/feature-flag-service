@@ -2,16 +2,20 @@ import { useState } from 'react'
 
 const API_HEADERS = {
   'Content-Type': 'application/json',
-  'X-API-Key': 'test-key-123',
+  'X-API-Key': import.meta.env.VITE_API_KEY,
 }
 
 function EvaluationSimulator({ flags, onEvaluated }) {
   const [userId, setUserId] = useState('')
   const [selectedFlag, setSelectedFlag] = useState('')
+  const [country, setCountry] = useState('')
+  const [platform, setPlatform] = useState('')
   const [result, setResult] = useState(null)
   const [busy, setBusy] = useState(false)
   const [latency, setLatency] = useState(null)
   const [error, setError] = useState(null)
+
+  const hasAttributes = country.trim() || platform.trim()
 
   function evaluate(e) {
     e.preventDefault()
@@ -22,10 +26,15 @@ function EvaluationSimulator({ flags, onEvaluated }) {
 
     const start = performance.now()
 
-    fetch('/api/evaluate', {
+    const url = hasAttributes ? '/api/evaluate/segment' : '/api/evaluate'
+    const body = hasAttributes
+      ? { flagName: selectedFlag, userId: userId.trim(), attributes: { country: country.trim(), platform: platform.trim() } }
+      : { flagName: selectedFlag, userId: userId.trim() }
+
+    fetch(url, {
       method: 'POST',
       headers: API_HEADERS,
-      body: JSON.stringify({ flagName: selectedFlag, userId: userId.trim() }),
+      body: JSON.stringify(body),
     })
       .then(res => {
         const ms = Math.round(performance.now() - start)
@@ -72,6 +81,26 @@ function EvaluationSimulator({ flags, onEvaluated }) {
           </select>
         </div>
 
+        <div className="flex flex-col gap-1">
+          <label className="text-xs text-gray-500 font-mono">Country <span className="text-gray-700">(optional)</span></label>
+          <input
+            value={country}
+            onChange={e => setCountry(e.target.value)}
+            placeholder="e.g. US"
+            className="bg-gray-800 border border-gray-600 rounded px-3 py-2 text-sm font-mono text-gray-100 focus:outline-none focus:border-cyan-500 w-28"
+          />
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <label className="text-xs text-gray-500 font-mono">Platform <span className="text-gray-700">(optional)</span></label>
+          <input
+            value={platform}
+            onChange={e => setPlatform(e.target.value)}
+            placeholder="e.g. iOS"
+            className="bg-gray-800 border border-gray-600 rounded px-3 py-2 text-sm font-mono text-gray-100 focus:outline-none focus:border-cyan-500 w-28"
+          />
+        </div>
+
         <button
           type="submit"
           disabled={busy || !userId.trim() || !selectedFlag}
@@ -80,6 +109,10 @@ function EvaluationSimulator({ flags, onEvaluated }) {
           {busy ? 'Evaluating...' : 'Evaluate'}
         </button>
       </form>
+
+      {hasAttributes && (
+        <p className="mt-2 text-[10px] font-mono text-gray-600">Segmented evaluation — using /api/evaluate/segment</p>
+      )}
 
       {error && (
         <p className="mt-4 text-red-400 font-mono text-sm">Error: {error}</p>
