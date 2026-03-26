@@ -2,6 +2,20 @@
 
 ---
 
+## Day 28 — Railway Deploy
+**Commit:** `40a5b14`
+- Updated Dockerfile to 3-stage build: Node 22 (frontend) → Maven (backend) → runtime
+- Frontend built with `base: '/app/'` so assets load correctly under `/app`
+- Added SPA fallback route in `HelloController` — `/app` forwards to `app/index.html`
+- Whitelisted `/app/**` in `ApiKeyFilter`
+- `application-prod.properties` — reads `PGHOST`, `PGPORT`, `PGDATABASE`, `PGUSER`, `PGPASSWORD`, `REDIS_URL` from Railway-injected env vars
+- Fixed active profile: `${SPRING_PROFILES_ACTIVE:local}` so Railway can override it
+- Downgraded Vite 8 → Vite 5 — Vite 8's Rolldown bundler can't resolve `@stomp/stompjs`
+- Fixed Railway variable wiring — PG* vars must be manually referenced via `${{Postgres.VAR}}` syntax in app service variables
+- **Live URL:** `feature-flag-service-production-7deb.up.railway.app`
+
+---
+
 ## Day 27 — Polish + Cohesion
 **Commit:** `b57ed92`
 - Tabbed navigation — 5 tabs (Flags, Simulator, Live Feed, Story, Webhooks), replaces single scroll page

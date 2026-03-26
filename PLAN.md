@@ -66,7 +66,7 @@ what feature flags are, why Redis matters, and how rollout targeting works — j
 | Day 25 | **The Story Panel** — Redis hit/miss ratio, evaluation counts per flag, recent decisions timeline. Makes the infrastructure visible and meaningful | ✅ Done |
 | Day 26 | Webhook panel + delivery log — register endpoints, see per-delivery success/fail, payload preview | ✅ Done |
 | Day 27 | Polish + cohesion — unified nav, loading states, empty states, error handling, make it feel like one product | ✅ Done |
-| Day 28 | Deploy to Railway — public live URL, CI/CD auto-deploy on push | ⬜ |
+| Day 28 | Deploy to Railway — public live URL, CI/CD auto-deploy on push | ✅ Done |
 | Day 29 | Final documentation — README, architecture diagram | ⬜ |
 | Day 30 | Demo video + project wrap-up | ⬜ |
 
