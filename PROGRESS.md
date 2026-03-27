@@ -3,7 +3,7 @@
 ---
 
 ## Day 29 — Final Documentation
-**Commit:** TBD
+**Commit:** `e20d90b`
 - Written a full production-grade README — features, architecture (Mermaid diagram), API reference with curl examples, tech decisions, roadmap
 - Updated browser tab title to "Canary" on both landing page and React app
 - Replaced favicon with a canary bird SVG in cyan
