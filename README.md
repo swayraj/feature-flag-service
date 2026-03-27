@@ -64,31 +64,31 @@ Canary is a self-hosted feature flag service that handles all of this. It evalua
 graph TD
     subgraph Client
         UI[React Admin UI]
-        SDK[API Consumer / SDK]
+        SDK[API Consumer]
     end
 
     subgraph API Layer
-        FC[FlagController<br/>/api/flags]
-        EC[EvaluationController<br/>/api/evaluate]
-        WH[WebhookController<br/>/api/webhooks]
-        SC[SchedulingController<br/>/api/schedule]
+        FC[FlagController]
+        EC[EvaluationController]
+        WC[WebhookController]
+        SC[SchedulingController]
     end
 
     subgraph Service Layer
         FS[FlagService]
-        RS[RolloutService<br/>consistent hash]
-        FES[FlagEventService<br/>event bus]
-        SS[SchedulingService<br/>@Scheduled]
+        RS[RolloutService - consistent hash]
+        FES[FlagEventService - event bus]
+        SS[SchedulingService]
     end
 
     subgraph Data
-        PG[(PostgreSQL<br/>flags table)]
-        RD[(Redis<br/>10-min TTL cache)]
+        PG[(PostgreSQL)]
+        RD[(Redis - 10min TTL)]
     end
 
     subgraph Broadcast
-        WS[WebSocket / STOMP<br/>/ws]
-        WHK[Webhook Delivery<br/>HMAC-SHA256 + retry]
+        WS[WebSocket STOMP]
+        WHK[Webhook - HMAC-SHA256 + retry]
     end
 
     UI -->|REST + WebSocket| FC
