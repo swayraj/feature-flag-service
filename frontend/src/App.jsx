@@ -29,30 +29,31 @@ function App() {
   const [flags, setFlags] = useState([])
   const [evalHistory, setEvalHistory] = useState([])
   const seenEvals = useState(() => new Set())[0]
+  const [createError, setCreateError] = useState(null)
 
   function createFlag(e) {
     e.preventDefault()
     if (!flagName.trim()) return
     setBusy(true)
+    setCreateError(null)
     fetch('/api/flags', {
       method: 'POST',
       headers: API_HEADERS,
       body: JSON.stringify({ name: flagName.trim(), enabled: false, rolloutPercentage: Number(rollout) }),
     })
-      .then(res => { if (!res.ok) throw new Error(`HTTP ${res.status}`); return res.json() })
+      .then(res => {
+        if (res.status === 403) throw new Error('Flag creation is disabled in demo mode.')
+        if (res.status === 401) throw new Error('Not authorised to create flags.')
+        if (!res.ok) throw new Error('Name must be 3+ chars, letters/numbers/underscores/hyphens only, and unique.')
+        return res.json()
+      })
       .then(() => {
         setFlagName('')
         setRollout(0)
         setShowForm(false)
         setRefreshKey(k => k + 1)
       })
-      .catch(err => {
-        if (err.message.startsWith('HTTP')) {
-          alert('Create failed — flag name must be 3+ chars, letters/numbers/underscores/hyphens only, and must be unique.')
-        } else {
-          alert(err.message)
-        }
-      })
+      .catch(err => setCreateError(err.message))
       .finally(() => setBusy(false))
   }
 
@@ -72,7 +73,7 @@ function App() {
         </h1>
         {activeTab === 'flags' && (
           <button
-            onClick={() => setShowForm(v => !v)}
+            onClick={() => { setShowForm(v => !v); setCreateError(null) }}
             className="text-xs font-mono px-4 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white transition-colors"
           >
             {showForm ? 'Cancel' : '+ New Flag'}
@@ -107,6 +108,9 @@ function App() {
             className="text-sm font-mono px-4 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white disabled:opacity-40 transition-colors">
             Create
           </button>
+          {createError && (
+            <p className="text-xs font-mono text-red-400 self-center">{createError}</p>
+          )}
         </form>
       )}
 

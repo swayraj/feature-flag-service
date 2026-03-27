@@ -49,6 +49,7 @@ function FlagCard({ flag, onUpdate }) {
   const [scheduleMode, setScheduleMode] = useState(false)
   const [newRollout, setNewRollout] = useState(flag.rolloutPercentage ?? 0)
   const [busy, setBusy] = useState(false)
+  const [actionError, setActionError] = useState(null)
 
   // one-time schedule fields
   const [schedulePercent, setSchedulePercent] = useState(100)
@@ -60,35 +61,44 @@ function FlagCard({ flag, onUpdate }) {
   const [scheduleMsg, setScheduleMsg] = useState(null)
   const [scheduleErr, setScheduleErr] = useState(null)
 
+  function friendlyError(res) {
+    if (res.status === 403) return 'Not available in demo mode.'
+    if (res.status === 401) return 'Not authorised.'
+    return `Request failed (${res.status})`
+  }
+
   function toggle() {
     setBusy(true)
+    setActionError(null)
     fetch(`/api/flags/${flag.id}/toggle`, { method: 'POST', headers: API_HEADERS })
-      .then(res => { if (!res.ok) throw new Error(`HTTP ${res.status}`); return res.json() })
+      .then(res => { if (!res.ok) throw new Error(friendlyError(res)); return res.json() })
       .then(() => onUpdate())
-      .catch(err => alert(err.message))
+      .catch(err => setActionError(err.message))
       .finally(() => setBusy(false))
   }
 
   function deleteFlag() {
     if (!confirm(`Delete "${flag.name}"?`)) return
     setBusy(true)
+    setActionError(null)
     fetch(`/api/flags/${flag.id}`, { method: 'DELETE', headers: API_HEADERS })
-      .then(res => { if (!res.ok) throw new Error(`HTTP ${res.status}`) })
+      .then(res => { if (!res.ok) throw new Error(friendlyError(res)) })
       .then(() => onUpdate())
-      .catch(err => alert(err.message))
+      .catch(err => setActionError(err.message))
       .finally(() => setBusy(false))
   }
 
   function saveRollout() {
     setBusy(true)
+    setActionError(null)
     fetch(`/api/flags/${flag.id}`, {
       method: 'PUT',
       headers: API_HEADERS,
       body: JSON.stringify({ name: flag.name, enabled: flag.enabled, rolloutPercentage: Number(newRollout) }),
     })
-      .then(res => { if (!res.ok) throw new Error(`HTTP ${res.status}`); return res.json() })
+      .then(res => { if (!res.ok) throw new Error(friendlyError(res)); return res.json() })
       .then(() => { setEditMode(false); onUpdate() })
-      .catch(err => alert(err.message))
+      .catch(err => setActionError(err.message))
       .finally(() => setBusy(false))
   }
 
@@ -182,6 +192,10 @@ function FlagCard({ flag, onUpdate }) {
           Delete
         </button>
       </div>
+
+      {actionError && (
+        <p className="text-[11px] font-mono text-red-400">{actionError}</p>
+      )}
 
       {scheduleMode && (
         <div className="border-t border-gray-800 pt-3 flex flex-col gap-4">
