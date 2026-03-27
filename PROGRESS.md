@@ -2,6 +2,14 @@
 
 ---
 
+## Day 29 — Final Documentation
+**Commit:** TBD
+- Written a full production-grade README — features, architecture (Mermaid diagram), API reference with curl examples, tech decisions, roadmap
+- Updated browser tab title to "Canary" on both landing page and React app
+- Replaced favicon with a canary bird SVG in cyan
+
+---
+
 ## Day 28 — Railway Deploy
 **Commit:** `40a5b14`
 - Updated Dockerfile to 3-stage build: Node 22 (frontend) → Maven (backend) → runtime
