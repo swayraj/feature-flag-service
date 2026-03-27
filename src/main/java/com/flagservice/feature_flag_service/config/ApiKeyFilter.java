@@ -37,10 +37,10 @@ public class ApiKeyFilter extends OncePerRequestFilter {
         String path = request.getRequestURI();
         String method = request.getMethod();
 
-        if (path.startsWith("/swagger-ui") || path.startsWith("/v3/api-docs")
-                || path.equals("/") || path.equals("/index.html") || path.equals("/health")
-                || path.startsWith("/ws") || path.startsWith("/app")
-                || "GET".equalsIgnoreCase(method)) {
+        boolean isCreateFlag = "POST".equalsIgnoreCase(method) && path.equals("/api/flags");
+        boolean isDeleteFlag = "DELETE".equalsIgnoreCase(method) && path.startsWith("/api/flags/");
+
+        if (!isCreateFlag && !isDeleteFlag) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -48,7 +48,7 @@ public class ApiKeyFilter extends OncePerRequestFilter {
         if (!writesEnabled) {
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             response.setContentType("application/json");
-            response.getWriter().write("{\"error\": \"Write operations are disabled in demo mode.\"}");
+            response.getWriter().write("{\"error\": \"Flag creation and deletion are disabled in demo mode.\"}");
             return;
         }
 
