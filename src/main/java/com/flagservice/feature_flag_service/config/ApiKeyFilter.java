@@ -7,6 +7,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
@@ -19,6 +20,9 @@ public class ApiKeyFilter extends OncePerRequestFilter {
 
     private final ApiKeyRepository apiKeyRepository;
     private final Map<String, Bucket> buckets = new ConcurrentHashMap<>();
+
+    @Value("${WRITES_ENABLED:true}")
+    private boolean writesEnabled;
 
     public ApiKeyFilter(ApiKeyRepository apiKeyRepository) {
         this.apiKeyRepository = apiKeyRepository;
@@ -38,6 +42,13 @@ public class ApiKeyFilter extends OncePerRequestFilter {
                 || path.startsWith("/ws") || path.startsWith("/app")
                 || "GET".equalsIgnoreCase(method)) {
             filterChain.doFilter(request, response);
+            return;
+        }
+
+        if (!writesEnabled) {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            response.setContentType("application/json");
+            response.getWriter().write("{\"error\": \"Write operations are disabled in demo mode.\"}");
             return;
         }
 

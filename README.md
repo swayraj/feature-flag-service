@@ -155,7 +155,7 @@ This starts three containers: the Spring Boot app, PostgreSQL, and Redis.
 
 Write endpoints require the API key header:
 ```
-X-API-Key: canary-secret-key
+X-API-Key: your-api-key
 ```
 
 ### Run without Docker
@@ -222,7 +222,7 @@ curl -X POST http://localhost:8080/api/evaluate/segment \
 ```bash
 curl -X POST http://localhost:8080/api/flags \
   -H "Content-Type: application/json" \
-  -H "X-API-Key: canary-secret-key" \
+  -H "X-API-Key: your-api-key" \
   -d '{"name": "dark_mode", "enabled": false, "rolloutPercentage": 25}'
 ```
 
